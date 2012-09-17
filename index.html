@@ -1,0 +1,70 @@
+<style type="text/css">
+html, body {
+  padding; 0;
+  margin: 0;
+}
+body {
+  background:#000;
+  color:white;
+  font-family: Arial,Helvetica,Sans-serif;
+}
+a:hover {
+    text-decoration: none;
+}
+canvas {
+   position: absolute;
+}
+</style>
+<canvas id="theCanvas" width="803" height="400"></canvas>
+<canvas id="interactionCanvas" width="803" height="400"></canvas>
+<script src="http://d3js.org/d3.v2.js"></script>
+<script src="http://underscorejs.org/underscore.js"></script>
+<script src="Julia.js"></script>
+<script>
+var width = document.body.clientWidth;
+var height = document.body.clientHeight;
+var g_canvas = document.getElementById('theCanvas');
+var interaction_canvas = document.getElementById('interactionCanvas');
+
+d3.selectAll("canvas")
+  .attr("width", width)
+  .attr("height", height);
+
+var g_context = g_canvas.getContext('2d'); 
+var interaction_context = interaction_canvas.getContext('2d'); 
+g_context.font = "14pt Helvetica";
+g_context.lineWidth = 1;
+g_julia = new Julia(0,0,width,height);
+g_julia.render();
+g_julia.go();
+
+var extentMin = [],
+    extentMax = [];
+
+d3.select(interaction_canvas)
+  .call(
+    d3.behavior.drag()
+    .on("dragstart", dragstart)
+    .on("drag", dragging)
+    .on("dragend", dragend)
+  );
+
+function dragstart() {
+  extentMin = d3.mouse(this);
+};
+
+function dragend() {
+  extentMax = d3.mouse(this);
+  interaction_context.clearRect(0,0,width,height);  
+  g_julia.zoom(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);
+};
+
+function dragging() {
+  extentMax = d3.mouse(this);
+  interaction_context.clearRect(0,0,width,height);  
+  interaction_context.fillStyle = "rgba(0,0,0,0.7)";
+  interaction_context.fillRect(0,0,width,height);  
+  interaction_context.clearRect(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);  
+};
+
+</script>
