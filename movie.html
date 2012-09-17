@@ -1,0 +1,88 @@
+<style type="text/css">
+html, body {
+  padding; 0;
+  margin: 0;
+}
+body {
+  background:#000;
+  color:white;
+  font-family: Arial,Helvetica,Sans-serif;
+}
+a:hover {
+    text-decoration: none;
+}
+canvas {
+   position: absolute;
+}
+</style>
+<canvas id="theCanvas" width="803" height="400"></canvas>
+<canvas id="interactionCanvas" width="803" height="400"></canvas>
+<script src="http://d3js.org/d3.v2.js"></script>
+<script src="http://underscorejs.org/underscore.js"></script>
+<script src="julia.js"></script>
+<script>
+var width = document.body.clientWidth;
+var height = document.body.clientHeight;
+var canvas = document.createElement('canvas');
+var visible_canvas = document.getElementById('theCanvas');
+
+canvas.width = width;
+canvas.height = height;
+
+d3.selectAll("canvas")
+  .attr("width", width)
+  .attr("height", height);
+
+var ctx = canvas.getContext('2d'); 
+var visible_ctx = visible_canvas.getContext('2d'); 
+
+visible_ctx.fillStyle = "white";
+visible_ctx.font = "12pt sans-serif";
+visible_ctx.fillText("rendering first image...", width/2, height/2);
+
+jul = julia(width,height)
+  .context(ctx)
+  .minResolution(0)
+  .realMin(-1.7)
+  .realMax(1.7)
+  .imagMin(-1)
+  .imagMax(1);
+jul.render();
+
+var image_datas = [];
+
+// this causes a recursive loop by re-rendering when CR set
+jul.on("done", function() { 
+  console.log("new iteration");
+  image_datas.push(ctx.getImageData(0,0,width,height));
+  jul.CI(jul.CI() + 0.0002)
+     .realMin(jul.realMin() + 0.003)
+     .realMax(jul.realMax() - 0.003)
+     .imagMin(jul.imagMin() + 0.003)
+     .imagMax(jul.imagMax() - 0.003);
+})
+
+// start rendering
+jul.go();
+
+// loop through rendered images
+var i = 0;
+var forwards = true;
+function renderNext() {
+  if (image_datas.length == 0) return;
+  if (i == image_datas.length) {
+    i--;
+    forwards = false;
+    return;
+  }
+  if (i == 0) {
+    visible_ctx.putImageData(image_datas[i], 0, 0);
+    i++;
+    forwards = true;
+    return;
+  }
+  visible_ctx.putImageData(image_datas[i], 0, 0);
+  forwards ? i++ : i--;
+};
+d3.timer(renderNext);
+</script>

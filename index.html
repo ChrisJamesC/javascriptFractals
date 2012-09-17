@@ -32,8 +32,7 @@ d3.selectAll("canvas")
 
 var ctx = canvas.getContext('2d'); 
 var interaction_context = interaction_canvas.getContext('2d'); 
-ctx.font = "14pt Helvetica";
-ctx.lineWidth = 1;
+
 jul = julia(width,height)
   .context(ctx);
 jul.render();

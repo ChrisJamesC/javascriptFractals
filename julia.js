@@ -7,21 +7,28 @@ function julia(x_extent, y_extent) {
     imagMax: 1.2,
     CR: -.8,
     CI: .156,
-    maxIter: 2000
+    maxIter: 2000,
+    minResolution: 100
   };
 
-  jul.__ = __;
-  getset(jul, __);
+  var events = d3.dispatch.apply(this, ["done"].concat(d3.keys(__)));
 
   var color = d3.scale.linear()
-    .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
-    .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
-    .interpolate(d3.interpolateHcl)
+      .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
+      .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
+      .interpolate(d3.interpolateHcl);
+
+  jul.__ = __;
+  getset(jul, __, events);
+  d3.rebind(jul, events, "on");
+  jul.color = color;
+
+  var fast_color = _.memoize(color);
 
   var ctx;
   var _x = 0;
   var _y = 0;
-  var resolution = 100;
+  var resolution = __.minResolution;
   var done = false;
 
   jul.zoom = function(x,y,w,h) {
@@ -87,13 +94,14 @@ function julia(x_extent, y_extent) {
 
          var iterations = jul.iterate(real,imag);
 
-         ctx.fillStyle = jul.color(iterations);
+         ctx.fillStyle = fast_color(iterations);
          ctx.fillRect(_x,_y,1,1);
       }
     }
 
     if ( _x >= x_extent ) {
       done = true;
+      events.done.call(jul);
     }
   }
 
@@ -115,7 +123,7 @@ function julia(x_extent, y_extent) {
 
           var iterations = jul.iterate(real,imag);
 
-          ctx.fillStyle = jul.color(iterations);
+          ctx.fillStyle = fast_color(iterations);
           ctx.fillRect(_x,_y,resolution,resolution);
        }
     }
@@ -129,11 +137,9 @@ function julia(x_extent, y_extent) {
   jul.resetForRender = function() {
     _x = 0;
     _y = 0;
-    resolution = 100;
+    resolution = __.minResolution;
     done = false;
   }
-
-  jul.color = _.memoize(color);
 
   jul.context  = function(_) {
     if (!arguments.length) return ctx;
@@ -153,7 +159,9 @@ function julia(x_extent, y_extent) {
     d3.keys(state).forEach(function(key) {   
       obj[key] = function(x) {
         if (!arguments.length) return state[key];
+        var old = state[key];
         state[key] = x;
+        events[key].call(jul,{"value": x, "previous": old});
         obj.resetForRender();
         return obj;
       };
