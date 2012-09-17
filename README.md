@@ -4,5 +4,5 @@ Based on [DougX's Canvas Fractals](http://dougx.net/fractals/fractals.html).
 
 Improvements:
 
-* [HCL Color Space](http://bl.ocks.org/3425926)
+* [HCL Color Space](http://bl.ocks.org/3014589)
 * [Memoized](http://underscorejs.org/#memoize) coloring function to speed up rendering
