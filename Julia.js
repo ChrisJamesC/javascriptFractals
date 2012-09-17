@@ -1,158 +1,164 @@
-var color = d3.scale.linear()
-  .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
-  .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
-  .interpolate(d3.interpolateHcl)
+function julia(x_extent, y_extent) {
+  var jul = {};
+  var __ = {
+    realMin: -2,
+    realMax: 2,
+    imagMin: -1.2,
+    imagMax: 1.2,
+    CR: -.8,
+    CI: .156,
+    maxIter: 2000
+  };
 
-function Julia(screenXOff, screenYOff, x_extent, y_extent) {
-   this.myScreenXOff = screenXOff;
-   this.myScreenYOff = screenYOff;
+  jul.__ = __;
+  getset(jul, __);
 
-   this.myXExtent = x_extent;
-   this.myYExtent = y_extent;
+  var color = d3.scale.linear()
+    .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
+    .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
+    .interpolate(d3.interpolateHcl)
 
-   this.myRealMin = -2;
-   this.myRealMax = 2;
-   this.myImagMin = -1.2;
-   this.myImagMax = 1.2;
+  var ctx;
+  var _x = 0;
+  var _y = 0;
+  var resolution = 100;
+  var done = false;
 
-   this.myCR = -.8;
-   this.myCI = .156;
+  jul.zoom = function(x,y,w,h) {
+    done = true;
 
-   this.myMaxIter = 2000;
+    x /= x_extent;
+    y /= y_extent;
+    w /= x_extent;
+    h /= y_extent;
 
-   this._x = 0;
-   this._y = 0;
-   this.myBoxResolution = 100;
-   this.myDone = false;
-}
+    var newRealMin = (__.realMax - __.realMin) * x + __.realMin;
+    var newRealMax = newRealMin + (__.realMax - __.realMin) * w;
+    var newImagMin = (__.imagMax - __.imagMin) * y + __.imagMin;
+    var newImagMax = newImagMin + (__.imagMax - __.imagMin) * h;
 
-Julia.prototype.zoom = function(x,y,w,h) {
-   this.myDone = true;
+    __.realMin = newRealMin;
+    __.realMax = newRealMax;
+    __.imagMin = newImagMin;
+    __.imagMax = newImagMax;
 
-   x -= this.myScreenXOff;
-   y -= this.myScreenYOff;
+    jul.resetForRender();
+  }
 
-   x /= this.myXExtent;
-   y /= this.myYExtent;
-   w /= this.myXExtent;
-   h /= this.myYExtent;
+  jul.iterate = function(real,imag) {
+    var zr = real;
+    var zi = imag;
 
-   var newRealMin = (this.myRealMax - this.myRealMin) * x + this.myRealMin;
-   var newRealMax = newRealMin + (this.myRealMax - this.myRealMin) * w;
-   var newImagMin = (this.myImagMax - this.myImagMin) * y + this.myImagMin;
-   var newImagMax = newImagMin + (this.myImagMax - this.myImagMin) * h;
+    var iterations = 0;
 
-   this.myRealMin = newRealMin;
-   this.myRealMax = newRealMax;
-   this.myImagMin = newImagMin;
-   this.myImagMax = newImagMax;
-
-   this.resetForRender();
-}
-
-Julia.prototype.iterate = function(real,imag) {
-   var zr = real;
-   var zi = imag;
-
-   var iterations = 0;
-
-   while (true) {
+    while (true) {
       iterations++;
-      if ( iterations > this.myMaxIter )
-         return 0;
-
-      zr_next = zr * zr - zi * zi + this.myCR;
-      zi_next = 2 * zi * zr + this.myCI;
-
+      if ( iterations > __.maxIter ) return 0;
+      zr_next = zr * zr - zi * zi + __.CR;
+      zi_next = 2 * zi * zr + __.CI;
       zr = zr_next;
       zi = zi_next;
-
-      if ( zr > 4 )
-         return iterations;
-      if ( zi > 4 )
-         return iterations;
-   }
-
-   return iterations;
-}
-
-Julia.prototype.render = function() {
-   if (this.myDone)
-      return;
-
-   if ( this.boxes() )
-      return;
-
-   var realSpan = this.myRealMax - this.myRealMin;
-   var imagSpan = this.myImagMax - this.myImagMin;
-
-   var ll = this._x + 6; // how many columns to render at once
-   for ( ; this._x < ll; ++this._x) {
-      for ( this._y = 0; this._y < this.myYExtent; ++this._y) {
-         var fx = this._x / this.myXExtent;
-         var fy = this._y / this.myYExtent;
-
-         var real = fx * realSpan + this.myRealMin;
-         var imag = fy * imagSpan + this.myImagMin;
-
-         var iterations = this.iterate(real,imag);
-
-         g_context.fillStyle = this.color(iterations);
-         g_context.fillRect(this._x+this.myScreenXOff,
-                            this._y+this.myScreenYOff,
-                            1,1);
-      }
-   }
-
-   if ( this._x >= this.myXExtent ) {
-      this.myDone = true;
-   }
-}
-
-Julia.prototype.boxes = function() {
-   if ( this.myBoxResolution <= 6 ) {
-      return false;
-   }
-
-   var realSpan = this.myRealMax - this.myRealMin;
-   var imagSpan = this.myImagMax - this.myImagMin;
-
-   for ( this._x = 0; this._x < this.myXExtent; this._x += this.myBoxResolution) {
-      for ( this._y = 0; this._y < this.myYExtent; this._y += this.myBoxResolution) {
-         var fx = (this._x + this.myBoxResolution/2) / this.myXExtent;
-         var fy = (this._y + this.myBoxResolution/2) / this.myYExtent;
-
-         var real = fx * realSpan + this.myRealMin;
-         var imag = fy * imagSpan + this.myImagMin;
-
-         var iterations = this.iterate(real,imag);
-
-         g_context.fillStyle = this.color(iterations);
-         g_context.fillRect(this._x+this.myScreenXOff,
-                            this._y+this.myScreenYOff,
-                            this.myBoxResolution,this.myBoxResolution);
-      }
-   }
-
-   this.myBoxResolution -= 2;
-   this._x = 0;
-   this._y = 0;
-   return true;
-}
-
-Julia.prototype.resetForRender = function() {
-   this._x = 0;
-   this._y = 0;
-   this.myBoxResolution = 100;
-   this.myDone = false;
-}
-
-Julia.prototype.color = _.memoize(color);
-
-Julia.prototype.go = function() {
-  var self = this;
-  var render = function() {
-    self.render();
+      if ( zr > 4 ) return iterations;
+      if ( zi > 4 ) return iterations;
+    }
+    return iterations;
   }
-  d3.timer(render);
+ 
+  jul.render = function() {
+    if (done)
+      return;
+
+    if ( jul.boxes() )
+      return;
+
+    var realSpan = __.realMax - __.realMin;
+    var imagSpan = __.imagMax - __.imagMin;
+    var realMin = __.realMin;
+    var imagMin = __.imagMin;
+
+    var ll = _x + 6; // how many columns to render at once
+    for ( ; _x < ll; ++_x) {
+      for ( _y = 0; _y < y_extent; ++_y) {
+         var fx = _x / x_extent;
+         var fy = _y / y_extent;
+
+         var real = fx * realSpan + realMin;
+         var imag = fy * imagSpan + imagMin;
+
+         var iterations = jul.iterate(real,imag);
+
+         ctx.fillStyle = jul.color(iterations);
+         ctx.fillRect(_x,_y,1,1);
+      }
+    }
+
+    if ( _x >= x_extent ) {
+      done = true;
+    }
+  }
+
+  jul.boxes = function() {
+    if ( resolution <= 6 ) {
+       return false;
+    }
+
+    var realSpan = __.realMax - __.realMin;
+    var imagSpan = __.imagMax - __.imagMin;
+
+    for ( _x = 0; _x < x_extent; _x += resolution) {
+       for ( _y = 0; _y < y_extent; _y += resolution) {
+          var fx = (_x + resolution/2) / x_extent;
+          var fy = (_y + resolution/2) / y_extent;
+
+          var real = fx * realSpan + __.realMin;
+          var imag = fy * imagSpan + __.imagMin;
+
+          var iterations = jul.iterate(real,imag);
+
+          ctx.fillStyle = jul.color(iterations);
+          ctx.fillRect(_x,_y,resolution,resolution);
+       }
+    }
+
+    resolution -= 2;
+    _x = 0;
+    _y = 0;
+    return true;
+  }
+
+  jul.resetForRender = function() {
+    _x = 0;
+    _y = 0;
+    resolution = 100;
+    done = false;
+  }
+
+  jul.color = _.memoize(color);
+
+  jul.context  = function(_) {
+    if (!arguments.length) return ctx;
+    ctx = _;
+    return this;
+  };
+
+  jul.go = function() {
+    var render = function() {
+      jul.render();
+    }
+    d3.timer(render);
+  }
+
+  // getter/setter with event firing
+  function getset(obj,state)  {
+    d3.keys(state).forEach(function(key) {   
+      obj[key] = function(x) {
+        if (!arguments.length) return state[key];
+        state[key] = x;
+        obj.resetForRender();
+        return obj;
+      };
+    });
+  };
+
+  return jul;
 }

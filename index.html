@@ -19,24 +19,25 @@ canvas {
 <canvas id="interactionCanvas" width="803" height="400"></canvas>
 <script src="http://d3js.org/d3.v2.js"></script>
 <script src="http://underscorejs.org/underscore.js"></script>
-<script src="Julia.js"></script>
+<script src="julia.js"></script>
 <script>
 var width = document.body.clientWidth;
 var height = document.body.clientHeight;
-var g_canvas = document.getElementById('theCanvas');
+var canvas = document.getElementById('theCanvas');
 var interaction_canvas = document.getElementById('interactionCanvas');
 
 d3.selectAll("canvas")
   .attr("width", width)
   .attr("height", height);
 
-var g_context = g_canvas.getContext('2d'); 
+var ctx = canvas.getContext('2d'); 
 var interaction_context = interaction_canvas.getContext('2d'); 
-g_context.font = "14pt Helvetica";
-g_context.lineWidth = 1;
-g_julia = new Julia(0,0,width,height);
-g_julia.render();
-g_julia.go();
+ctx.font = "14pt Helvetica";
+ctx.lineWidth = 1;
+jul = julia(width,height)
+  .context(ctx);
+jul.render();
+jul.go();
 
 var extentMin = [],
     extentMax = [];
@@ -56,7 +57,7 @@ function dragstart() {
 function dragend() {
   extentMax = d3.mouse(this);
   interaction_context.clearRect(0,0,width,height);  
-  g_julia.zoom(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);
+  jul.zoom(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);
 };
 
 function dragging() {
