@@ -8,7 +8,7 @@ function julia(x_extent, y_extent) {
     CR: -.8,
     CI: .156,
     maxIter: 2000,
-    minResolution: 100
+    minResolution: 40
   };
 
   var events = d3.dispatch.apply(this, ["done"].concat(d3.keys(__)));
@@ -128,7 +128,7 @@ function julia(x_extent, y_extent) {
        }
     }
 
-    resolution -= 2;
+    resolution -= 4;
     _x = 0;
     _y = 0;
     return true;

@@ -2,7 +2,7 @@ A basic [Julia set](http://paulbourke.net/fractals/juliaset/) with constant -0.8
 
 Based on [DougX's Canvas Fractals](http://dougx.net/fractals/fractals.html).
 
-Improvements:
+Changes from Doug's:
 
 * [HCL Color Space](http://bl.ocks.org/3014589)
 * [Memoized](http://underscorejs.org/#memoize) coloring function to speed up rendering

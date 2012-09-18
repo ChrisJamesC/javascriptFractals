@@ -38,7 +38,7 @@ var visible_ctx = visible_canvas.getContext('2d');
 
 visible_ctx.fillStyle = "white";
 visible_ctx.font = "12pt sans-serif";
-visible_ctx.fillText("rendering first image...", width/2, height/2);
+visible_ctx.fillText("rendering...", width/2, height/2);
 
 jul = julia(width,height)
   .context(ctx)
@@ -55,34 +55,38 @@ var image_datas = [];
 jul.on("done", function() { 
   console.log("new iteration");
   image_datas.push(ctx.getImageData(0,0,width,height));
-  jul.CI(jul.CI() + 0.0002)
-     .realMin(jul.realMin() + 0.003)
-     .realMax(jul.realMax() - 0.003)
-     .imagMin(jul.imagMin() + 0.003)
-     .imagMax(jul.imagMax() - 0.003);
+  jul.CI(jul.CI() + 0.0002);
 })
 
 // start rendering
 jul.go();
 
-// loop through rendered images
-var i = 0;
-var forwards = true;
-function renderNext() {
-  if (image_datas.length == 0) return;
-  if (i == image_datas.length) {
-    i--;
-    forwards = false;
-    return;
-  }
-  if (i == 0) {
+// play frames
+play();
+
+var stop = false;
+function play() {
+  // loop through rendered images
+  var i = 0;
+  var forwards = true;
+  function renderNext() {
+    if (stop) return true;
+    if (image_datas.length == 0) return;
+    if (i == image_datas.length) {
+      i--;
+      forwards = false;
+      return;
+    }
+    if (i == 0) {
+      visible_ctx.putImageData(image_datas[i], 0, 0);
+      i++;
+      forwards = true;
+      return;
+    }
     visible_ctx.putImageData(image_datas[i], 0, 0);
-    i++;
-    forwards = true;
-    return;
-  }
-  visible_ctx.putImageData(image_datas[i], 0, 0);
-  forwards ? i++ : i--;
+    forwards ? i++ : i--;
+  };
+  d3.timer(renderNext);
 };
-d3.timer(renderNext);
+
 </script>
