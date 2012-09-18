@@ -1,22 +1,22 @@
 function julia(x_extent, y_extent) {
   var jul = {};
   var __ = {
-    realMin: -2,
-    realMax: 2,
-    imagMin: -1.2,
-    imagMax: 1.2,
+    realMin: -1.7,
+    realMax: 1.7,
+    imagMin: -1,
+    imagMax: 1,
     CR: -.8,
     CI: .156,
     maxIter: 2000,
-    minResolution: 40
+    minResolution: 40,
   };
 
   var events = d3.dispatch.apply(this, ["done"].concat(d3.keys(__)));
 
-  jul.color = d3.scale.linear()
-      .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
-      .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
-      .interpolate(d3.interpolateHcl);
+  jul.color = d3.scale.sqrt()
+    .domain([0, __.maxIter])
+    .range(["white", "black"])
+    .interpolate(d3.interpolateLab);
 
   jul.__ = __;
   getset(jul, __, events);
@@ -159,8 +159,8 @@ function julia(x_extent, y_extent) {
       obj[key] = function(x) {
         if (!arguments.length) return state[key];
         var old = state[key];
-        state[key] = x;
-        events[key].call(jul,{"value": x, "previous": old});
+        state[key] = typeof (x - 0) == "number" ? x - 0 : x;
+        events[key].call(jul,{"value": state[key], "previous": old});
         obj.resetForRender();
         return obj;
       };
