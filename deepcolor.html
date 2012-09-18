@@ -1,0 +1,75 @@
+<style type="text/css">
+html, body {
+  padding; 0;
+  margin: 0;
+}
+body {
+  background:#000;
+  color:white;
+  font-family: Arial,Helvetica,Sans-serif;
+}
+a:hover {
+    text-decoration: none;
+}
+canvas {
+   position: absolute;
+}
+</style>
+<canvas id="theCanvas" width="803" height="400"></canvas>
+<canvas id="interactionCanvas" width="803" height="400"></canvas>
+<script src="http://d3js.org/d3.v2.js"></script>
+<script src="http://underscorejs.org/underscore.js"></script>
+<script src="julia.js"></script>
+<script>
+var width = document.body.clientWidth;
+var height = document.body.clientHeight;
+var canvas = document.getElementById('theCanvas');
+var interaction_canvas = document.getElementById('interactionCanvas');
+
+d3.selectAll("canvas")
+  .attr("width", width)
+  .attr("height", height);
+
+var ctx = canvas.getContext('2d'); 
+var interaction_context = interaction_canvas.getContext('2d'); 
+
+jul = julia(width,height)
+  .context(ctx);
+jul.color = d3.scale.pow()
+  .domain(d3.range(0,2000,20))
+  .range(d3.range(0,100).map(function(i) { return d3.hcl(190+120*i, 40+35*Math.round(Math.cos(i/5)), 18+6*(i%10)).toString(); }))
+  .interpolate(d3.interpolateLab);
+
+jul.render();
+jul.go();
+
+var extentMin = [],
+    extentMax = [];
+
+d3.select(interaction_canvas)
+  .call(
+    d3.behavior.drag()
+    .on("dragstart", dragstart)
+    .on("drag", dragging)
+    .on("dragend", dragend)
+  );
+
+function dragstart() {
+  extentMin = d3.mouse(this);
+};
+
+function dragend() {
+  extentMax = d3.mouse(this);
+  interaction_context.clearRect(0,0,width,height);  
+  jul.zoom(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);
+};
+
+function dragging() {
+  extentMax = d3.mouse(this);
+  interaction_context.clearRect(0,0,width,height);  
+  interaction_context.fillStyle = "rgba(0,0,0,0.7)";
+  interaction_context.fillRect(0,0,width,height);  
+  interaction_context.clearRect(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);  
+};
+
+</script>
