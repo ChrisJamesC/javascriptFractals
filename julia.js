@@ -13,7 +13,7 @@ function julia(x_extent, y_extent) {
 
   var events = d3.dispatch.apply(this, ["done"].concat(d3.keys(__)));
 
-  var color = d3.scale.linear()
+  jul.color = d3.scale.linear()
       .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
       .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
       .interpolate(d3.interpolateHcl);
@@ -21,9 +21,6 @@ function julia(x_extent, y_extent) {
   jul.__ = __;
   getset(jul, __, events);
   d3.rebind(jul, events, "on");
-  jul.color = color;
-
-  var fast_color = _.memoize(color);
 
   var ctx;
   var _x = 0;
@@ -82,6 +79,7 @@ function julia(x_extent, y_extent) {
     var imagSpan = __.imagMax - __.imagMin;
     var realMin = __.realMin;
     var imagMin = __.imagMin;
+    var fast_color = _.memoize(jul.color);
 
     var ll = _x + 6; // how many columns to render at once
     for ( ; _x < ll; ++_x) {
@@ -112,6 +110,7 @@ function julia(x_extent, y_extent) {
 
     var realSpan = __.realMax - __.realMin;
     var imagSpan = __.imagMax - __.imagMin;
+    var fast_color = _.memoize(jul.color);
 
     for ( _x = 0; _x < x_extent; _x += resolution) {
        for ( _y = 0; _y < y_extent; _y += resolution) {
