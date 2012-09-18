@@ -216,6 +216,7 @@ function dragend() {
     d3.max([extentMin[0],extentMax[0]]),
     d3.max([extentMin[1],extentMax[1]])
   ];
+  if (box[0] == box[2] || box[1] == box[3]) return;
   if (_.isNaN(box[0]) ||
       _.isNaN(box[1]) ||
       _.isNaN(box[2]) ||
