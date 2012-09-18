@@ -7,6 +7,7 @@ body {
   background:#000;
   color:white;
   font-family: Arial,Helvetica,Sans-serif;
+  font-size: 12px;
 }
 a:hover {
     text-decoration: none;
@@ -14,9 +15,68 @@ a:hover {
 canvas {
    position: absolute;
 }
+#tools {
+  color: #bbb;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  line-height: 18px;
+  width: 160px;
+  padding: 2px 0 4px 8px;
+  z-index: 10;
+  background: rgba(0,0,0,0.4);
+}
+#tools:hover {
+  opacity: 1;
+}
+#tools > div {
+  width: 80px;
+  float: left;
+}
+#tools input[type=text] {
+  color: #fff;
+  font-weight: bold;
+  width: 70px;
+  margin: 0 0 4px 0;
+  padding: 4px 5px;
+  background: rgba(0,0,0,0.1);
+  border: none;
+}
+#tools:hover input[type=text] {
+  color: #eee;
+}
+#zoom {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  line-height: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+#zoom > div {
+  width: 24px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+#zoom > div:hover {
+  cursor: pointer;
+  background: rgba(0,0,0,0.8);
+}
+#zoom-reset {
+  font-size: 8px;
+}
 </style>
 <canvas id="theCanvas" width="803" height="400"></canvas>
 <canvas id="interactionCanvas" width="803" height="400"></canvas>
+<div id="zoom">
+  <div id="zoom-in">+</div>
+  <div id="zoom-out">-</div>
+  <div id="zoom-reset">reset</div>
+</div>
+<div id="tools">
+</div>
 <script src="http://d3js.org/d3.v2.js"></script>
 <script src="http://underscorejs.org/underscore.js"></script>
 <script src="julia.js"></script>
@@ -25,6 +85,14 @@ var width = document.body.clientWidth;
 var height = document.body.clientHeight;
 var canvas = document.getElementById('theCanvas');
 var interaction_canvas = document.getElementById('interactionCanvas');
+
+var real_scale = d3.scale.linear()
+  .domain([0, width])
+  .range([-1.7,1.7]);
+
+var imag_scale = d3.scale.linear()
+  .domain([0, height])
+  .range([-1,1]);
 
 d3.selectAll("canvas")
   .attr("width", width)
@@ -35,8 +103,94 @@ var interaction_context = interaction_canvas.getContext('2d');
 
 jul = julia(width,height)
   .context(ctx);
+
+jul.color = d3.scale.linear()
+      .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
+      .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
+      .interpolate(d3.interpolateHcl);
+
+// bind inputs to julia parameters
+d3.keys(jul.__).forEach(function(key) {
+  d3.select("#tools")
+    .append("div")
+    .html(key + "<br/>")
+    .append("input")
+    .attr({
+      id: "input-" + key,
+      type: "text",
+      value: jul[key]()
+    })
+    .on("keyup", function() {
+      jul[key](this.value);
+    });
+});
+
 jul.render();
 jul.go();
+
+d3.select("#zoom-reset").on("click", function() {
+  var box = [
+    real_scale.invert(-1.7),
+    imag_scale.invert(-1),
+    real_scale.invert(1.7),
+    imag_scale.invert(1)
+  ];
+  d3.select("#input-realMin").attr("value", real_scale(box[0]));
+  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
+  d3.select("#input-realMax").attr("value", real_scale(box[2]));
+  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
+  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
+  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
+  interaction_context.clearRect(0,0,width,height);  
+  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
+});
+d3.select("#zoom-in").on("click", function() {
+  var real_mod = 0.1 * (jul.realMax() - jul.realMin());
+  var imag_mod = 0.1 * (jul.imagMax() - jul.imagMin());
+  var box = [
+    real_scale.invert(jul.realMin() + real_mod),
+    imag_scale.invert(jul.imagMin() + imag_mod),
+    real_scale.invert(jul.realMax() - real_mod),
+    imag_scale.invert(jul.imagMax() - imag_mod)
+  ];
+  d3.select("#input-realMin").attr("value", real_scale(box[0]));
+  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
+  d3.select("#input-realMax").attr("value", real_scale(box[2]));
+  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
+  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
+  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
+  interaction_context.clearRect(0,0,width,height);  
+  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
+});
+d3.select("#zoom-out").on("click", function() {
+  var real_mod = 0.125 * (jul.realMax() - jul.realMin());
+  var imag_mod = 0.125 * (jul.imagMax() - jul.imagMin());
+  var box = [
+    real_scale.invert(jul.realMin() - real_mod),
+    imag_scale.invert(jul.imagMin() - imag_mod),
+    real_scale.invert(jul.realMax() + real_mod),
+    imag_scale.invert(jul.imagMax() + imag_mod)
+  ];
+  d3.select("#input-realMin").attr("value", real_scale(box[0]));
+  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
+  d3.select("#input-realMax").attr("value", real_scale(box[2]));
+  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
+  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
+  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
+  interaction_context.clearRect(0,0,width,height);  
+  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
+});
+/*
+d3.select(interaction_canvas)
+  .call(
+    d3.behavior.zoom()
+      .x(real_scale)
+      .y(imag_scale)
+      .on("zoom", function(a,b) { 
+        console.log(d3.event.scale, d3.event.translate);
+      })
+  );
+  */
 
 var extentMin = [],
     extentMax = [];
@@ -55,8 +209,24 @@ function dragstart() {
 
 function dragend() {
   extentMax = d3.mouse(this);
+  var box = [
+    d3.min([extentMin[0],extentMax[0]]),
+    d3.min([extentMin[1],extentMax[1]]),
+    d3.max([extentMin[0],extentMax[0]]),
+    d3.max([extentMin[1],extentMax[1]])
+  ];
+  if (_.isNaN(box[0]) ||
+      _.isNaN(box[1]) ||
+      _.isNaN(box[2]) ||
+      _.isNaN(box[3])) return;
+  d3.select("#input-realMin").attr("value", real_scale(box[0]));
+  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
+  d3.select("#input-realMax").attr("value", real_scale(box[2]));
+  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
+  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
+  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
   interaction_context.clearRect(0,0,width,height);  
-  jul.zoom(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);
+  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
 };
 
 function dragging() {
@@ -64,7 +234,10 @@ function dragging() {
   interaction_context.clearRect(0,0,width,height);  
   interaction_context.fillStyle = "rgba(0,0,0,0.7)";
   interaction_context.fillRect(0,0,width,height);  
-  interaction_context.clearRect(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);  
+  interaction_context.clearRect(extentMin[0],
+                                extentMin[1],
+                                extentMax[0]-extentMin[0],
+                                extentMax[1]-extentMin[1]);
 };
 
 </script>
