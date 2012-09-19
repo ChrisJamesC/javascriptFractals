@@ -17,15 +17,16 @@ canvas {
   cursor: crosshair;
 }
 #tools {
-  color: #bbb;
+  color: #ddd;
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 12px;
+  left: 40px;
   line-height: 18px;
-  width: 160px;
-  padding: 2px 0 4px 8px;
+  padding: 6px 8px 6px 8px;
   z-index: 10;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.6);
+  height: 40px;
+  border-radius: 4px;
 }
 #tools:hover {
   opacity: 1;
@@ -48,35 +49,47 @@ canvas {
 }
 #zoom {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 12px;
+  left: 12px;
   font-size: 24px;
   line-height: 24px;
   font-weight: bold;
   text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 #zoom > div {
   width: 24px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.6);
   border-radius: 4px;
   margin-bottom: 4px;
 }
 #zoom > div:hover {
   cursor: pointer;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,1);
 }
 #zoom-reset {
-  font-size: 8px;
+  font-size: 18px;
+  -webkit-transform: rotate(-90deg); 
+  -moz-transform: rotate(-90deg); 
+}
+#zoom-gear {
+  font-size: 18px;
 }
 </style>
 <canvas id="theCanvas" width="803" height="400"></canvas>
 <canvas id="interactionCanvas" width="803" height="400"></canvas>
 <div id="zoom">
-  <div id="zoom-in">+</div>
-  <div id="zoom-out">-</div>
-  <div id="zoom-reset">reset</div>
+  <div id="zoom-in" title="Zoom in">+</div>
+  <div id="zoom-out" title="Zoom out">-</div>
+  <div id="zoom-reset" title="Reset zoom">&sect;</div>
+  <div id="zoom-gear" title="Change fractal parameters">&#9881;</div>
 </div>
-<div id="tools">
+<div id="tools" style="display:none">
 </div>
 <script src="http://d3js.org/d3.v2.js"></script>
 <script src="http://underscorejs.org/underscore.js"></script>
@@ -129,6 +142,10 @@ d3.keys(jul.__).forEach(function(key) {
 jul.render();
 jul.go();
 
+// toggle tools visibility
+d3.select("#zoom-gear").on("click", function() {
+  d3.select("#tools").style("display", function() { return d3.select(this).style("display") == "block" ? "none" : "block" });
+});
 d3.select("#zoom-reset").on("click", function() {
   var box = [
     real_scale.invert(-1.7),
