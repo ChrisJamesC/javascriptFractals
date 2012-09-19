@@ -17,10 +17,10 @@ canvas {
   cursor: crosshair;
 }
 #tools {
-  color: #ddd;
+  color: #eee;
   position: fixed;
-  top: 12px;
-  left: 40px;
+  top: 44px;
+  left: 12px;
   line-height: 18px;
   padding: 6px 8px 6px 8px;
   z-index: 10;
@@ -63,22 +63,31 @@ canvas {
   user-select: none;
 }
 #zoom > div {
+  float: left;
   width: 24px;
   background: rgba(0,0,0,0.6);
   border-radius: 4px;
-  margin-bottom: 4px;
+  margin-right: 4px;
+  padding: 2px;
 }
 #zoom > div:hover {
   cursor: pointer;
   background: rgba(0,0,0,1);
 }
 #zoom-reset {
-  font-size: 18px;
-  -webkit-transform: rotate(-90deg); 
-  -moz-transform: rotate(-90deg); 
+  font-size: 16px;
+  -webkit-transform: rotate(90deg); 
+  -moz-transform: rotate(90deg); 
 }
 #zoom-gear {
-  font-size: 18px;
+  font-size: 16px;
+  color: rgba(255,255,255,0.3);
+}
+#zoom-gear:hover {
+  color: rgba(255,255,255,1);
+}
+#zoom-gear.active {
+  color: inherit;
 }
 </style>
 <canvas id="theCanvas" width="803" height="400"></canvas>
@@ -143,8 +152,11 @@ jul.render();
 jul.go();
 
 // toggle tools visibility
+var gear_active = false;
 d3.select("#zoom-gear").on("click", function() {
-  d3.select("#tools").style("display", function() { return d3.select(this).style("display") == "block" ? "none" : "block" });
+  gear_active = !gear_active;
+  d3.select("#tools").style("display", function() { return gear_active ? "block" : "none" });
+  d3.select(this).classed("active", gear_active);
 });
 d3.select("#zoom-reset").on("click", function() {
   var box = [
@@ -259,4 +271,21 @@ function dragging() {
                                 extentMax[1]-extentMin[1]);
 };
 
+window.onresize = function() {
+  width = document.body.clientWidth;
+  height = document.body.clientHeight;
+
+  var real_scale = d3.scale.linear()
+    .domain([0, width])
+
+  var imag_scale = d3.scale.linear()
+    .domain([0, height])
+
+  jul.x_extent(width);
+  jul.y_extent(height);
+
+  d3.selectAll("canvas")
+    .attr("width", width)
+    .attr("height", height);
+};
 </script>
