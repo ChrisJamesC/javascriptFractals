@@ -92,7 +92,7 @@ function julia(x_extent, y_extent) {
   }
 
   jul.boxes = function() {
-    if ( resolution <= 6 ) {
+    if ( resolution <= 3 ) {
        return false;
     }
 
@@ -115,7 +115,7 @@ function julia(x_extent, y_extent) {
        }
     }
 
-    resolution -= 4;
+    resolution -= 3;
     _x = 0;
     _y = 0;
     return true;
