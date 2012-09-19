@@ -28,24 +28,12 @@ function julia(x_extent, y_extent) {
   var resolution = __.minResolution;
   var done = false;
 
-  jul.zoom = function(x,y,w,h) {
+  jul.zoom = function(reals,imags) {
     done = true;
-
-    x /= x_extent;
-    y /= y_extent;
-    w /= x_extent;
-    h /= y_extent;
-
-    var newRealMin = (__.realMax - __.realMin) * x + __.realMin;
-    var newRealMax = newRealMin + (__.realMax - __.realMin) * w;
-    var newImagMin = (__.imagMax - __.imagMin) * y + __.imagMin;
-    var newImagMax = newImagMin + (__.imagMax - __.imagMin) * h;
-
-    __.realMin = newRealMin;
-    __.realMax = newRealMax;
-    __.imagMin = newImagMin;
-    __.imagMax = newImagMax;
-
+    __.realMin = reals[0];
+    __.realMax = reals[1];
+    __.imagMin = imags[0];
+    __.imagMax = imags[1];
     jul.resetForRender();
   }
 

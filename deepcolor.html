@@ -26,6 +26,14 @@ var height = document.body.clientHeight;
 var canvas = document.getElementById('theCanvas');
 var interaction_canvas = document.getElementById('interactionCanvas');
 
+var real_scale = d3.scale.linear()
+  .range([0, width])
+  .domain([-1.7,1.7]);
+
+var imag_scale = d3.scale.linear()
+  .range([0, height])
+  .domain([-1,1]);
+
 d3.selectAll("canvas")
   .attr("width", width)
   .attr("height", height);
@@ -35,41 +43,82 @@ var interaction_context = interaction_canvas.getContext('2d');
 
 jul = julia(width,height)
   .context(ctx);
-jul.color = d3.scale.pow()
+
+jul.color = d3.scale.linear()
   .domain(d3.range(0,2000,20))
   .range(d3.range(0,100).map(function(i) { return d3.hcl(190+120*i, 40+35*Math.round(Math.cos(i/5)), 18+6*(i%10)).toString(); }))
   .interpolate(d3.interpolateLab);
 
+var zoom = d3.behavior.zoom()
+  .x(real_scale)
+  .y(imag_scale)
+  .on("zoom", onzoom)
+
+function onzoom() {
+  d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
+  d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
+  d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
+  d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
+  jul.zoom(real_scale.domain(), imag_scale.domain());
+};
+
+// bind inputs to julia parameters
+d3.keys(jul.__).forEach(function(key) {
+  d3.select("#tools")
+    .append("div")
+    .html(key + "<br/>")
+    .append("input")
+    .attr({
+      id: "input-" + key,
+      type: "text",
+      value: jul[key]()
+    })
+    .on("keyup", function() {
+      jul[key](this.value);
+    });
+});
+
 jul.render();
 jul.go();
 
-var extentMin = [],
-    extentMax = [];
+// toggle tools visibility
+var gear_active = false;
+d3.select("#zoom-gear").on("click", function() {
+  gear_active = !gear_active;
+  d3.select("#tools").style("display", function() { return gear_active ? "block" : "none" });
+  d3.select(this).classed("active", gear_active);
+});
+d3.select("#zoom-reset").on("click", function() {
+  real_scale.domain([-1.7,1.7]);
+  imag_scale.domain([-1,1]);
+  zoom.scale(1)
+    .translate([0,0])
+    .x(real_scale)
+    .y(imag_scale);
+  onzoom();
+});
 
 d3.select(interaction_canvas)
-  .call(
-    d3.behavior.drag()
-    .on("dragstart", dragstart)
-    .on("drag", dragging)
-    .on("dragend", dragend)
-  );
+  .call(zoom);
 
-function dragstart() {
-  extentMin = d3.mouse(this);
+window.onresize = function() {
+  width = document.body.clientWidth;
+  height = document.body.clientHeight;
+
+  real_scale.range([0, width]);
+  imag_scale.range([0, height]);
+
+  zoom
+    .x(real_scale)
+    .y(imag_scale)
+    .scale(1)
+    .translate([0,0]);
+
+  jul.x_extent(width).y_extent(height);
+
+  d3.selectAll("canvas")
+    .attr("width", width)
+    .attr("height", height);
+  onzoom();
 };
-
-function dragend() {
-  extentMax = d3.mouse(this);
-  interaction_context.clearRect(0,0,width,height);  
-  jul.zoom(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);
-};
-
-function dragging() {
-  extentMax = d3.mouse(this);
-  interaction_context.clearRect(0,0,width,height);  
-  interaction_context.fillStyle = "rgba(0,0,0,0.7)";
-  interaction_context.fillRect(0,0,width,height);  
-  interaction_context.clearRect(extentMin[0],extentMin[1],extentMax[0]-extentMin[0],extentMax[1]-extentMin[1]);  
-};
-
 </script>

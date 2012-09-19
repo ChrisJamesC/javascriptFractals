@@ -14,7 +14,7 @@ a:hover {
 }
 canvas {
   position: absolute;
-  cursor: crosshair;
+  cursor: move;
 }
 #tools {
   color: #eee;
@@ -62,7 +62,7 @@ canvas {
   -ms-user-select: none;
   user-select: none;
 }
-#zoom > div {
+#zoom div {
   float: left;
   width: 24px;
   background: rgba(0,0,0,0.6);
@@ -70,31 +70,29 @@ canvas {
   margin-right: 4px;
   padding: 2px;
 }
-#zoom > div:hover {
+#zoom div:hover {
   cursor: pointer;
   background: rgba(0,0,0,1);
 }
 #zoom-reset {
   font-size: 16px;
-  -webkit-transform: rotate(90deg); 
-  -moz-transform: rotate(90deg); 
 }
-#zoom-gear {
+#zoom #zoom-gear {
   font-size: 16px;
   color: rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.2);
 }
-#zoom-gear:hover {
+#zoom #zoom-gear:hover {
   color: rgba(255,255,255,1);
 }
-#zoom-gear.active {
+#zoom #zoom-gear.active {
   color: inherit;
+  background: rgba(0,0,0,0.6);
 }
 </style>
 <canvas id="theCanvas" width="803" height="400"></canvas>
 <canvas id="interactionCanvas" width="803" height="400"></canvas>
 <div id="zoom">
-  <div id="zoom-in" title="Zoom in">+</div>
-  <div id="zoom-out" title="Zoom out">-</div>
   <div id="zoom-reset" title="Reset zoom">&sect;</div>
   <div id="zoom-gear" title="Change fractal parameters">&#9881;</div>
 </div>
@@ -110,12 +108,12 @@ var canvas = document.getElementById('theCanvas');
 var interaction_canvas = document.getElementById('interactionCanvas');
 
 var real_scale = d3.scale.linear()
-  .domain([0, width])
-  .range([-1.7,1.7]);
+  .range([0, width])
+  .domain([-1.7,1.7]);
 
 var imag_scale = d3.scale.linear()
-  .domain([0, height])
-  .range([-1,1]);
+  .range([0, height])
+  .domain([-1,1]);
 
 d3.selectAll("canvas")
   .attr("width", width)
@@ -131,6 +129,19 @@ jul.color = d3.scale.linear()
       .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
       .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
       .interpolate(d3.interpolateHcl);
+
+var zoom = d3.behavior.zoom()
+  .x(real_scale)
+  .y(imag_scale)
+  .on("zoom", onzoom)
+
+function onzoom() {
+  d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
+  d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
+  d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
+  d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
+  jul.zoom(real_scale.domain(), imag_scale.domain());
+};
 
 // bind inputs to julia parameters
 d3.keys(jul.__).forEach(function(key) {
@@ -159,133 +170,36 @@ d3.select("#zoom-gear").on("click", function() {
   d3.select(this).classed("active", gear_active);
 });
 d3.select("#zoom-reset").on("click", function() {
-  var box = [
-    real_scale.invert(-1.7),
-    imag_scale.invert(-1),
-    real_scale.invert(1.7),
-    imag_scale.invert(1)
-  ];
-  d3.select("#input-realMin").attr("value", real_scale(box[0]));
-  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
-  d3.select("#input-realMax").attr("value", real_scale(box[2]));
-  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
-  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
-  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
-  interaction_context.clearRect(0,0,width,height);  
-  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
+  real_scale.domain([-1.7,1.7]);
+  imag_scale.domain([-1,1]);
+  zoom.scale(1)
+    .translate([0,0])
+    .x(real_scale)
+    .y(imag_scale);
+  onzoom();
 });
-d3.select("#zoom-in").on("click", function() {
-  var real_mod = 0.1 * (jul.realMax() - jul.realMin());
-  var imag_mod = 0.1 * (jul.imagMax() - jul.imagMin());
-  var box = [
-    real_scale.invert(jul.realMin() + real_mod),
-    imag_scale.invert(jul.imagMin() + imag_mod),
-    real_scale.invert(jul.realMax() - real_mod),
-    imag_scale.invert(jul.imagMax() - imag_mod)
-  ];
-  d3.select("#input-realMin").attr("value", real_scale(box[0]));
-  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
-  d3.select("#input-realMax").attr("value", real_scale(box[2]));
-  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
-  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
-  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
-  interaction_context.clearRect(0,0,width,height);  
-  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
-});
-d3.select("#zoom-out").on("click", function() {
-  var real_mod = 0.125 * (jul.realMax() - jul.realMin());
-  var imag_mod = 0.125 * (jul.imagMax() - jul.imagMin());
-  var box = [
-    real_scale.invert(jul.realMin() - real_mod),
-    imag_scale.invert(jul.imagMin() - imag_mod),
-    real_scale.invert(jul.realMax() + real_mod),
-    imag_scale.invert(jul.imagMax() + imag_mod)
-  ];
-  d3.select("#input-realMin").attr("value", real_scale(box[0]));
-  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
-  d3.select("#input-realMax").attr("value", real_scale(box[2]));
-  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
-  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
-  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
-  interaction_context.clearRect(0,0,width,height);  
-  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
-});
-/*
-d3.select(interaction_canvas)
-  .call(
-    d3.behavior.zoom()
-      .x(real_scale)
-      .y(imag_scale)
-      .on("zoom", function(a,b) { 
-        console.log(d3.event.scale, d3.event.translate);
-      })
-  );
-  */
-
-var extentMin = [],
-    extentMax = [];
 
 d3.select(interaction_canvas)
-  .call(
-    d3.behavior.drag()
-    .on("dragstart", dragstart)
-    .on("drag", dragging)
-    .on("dragend", dragend)
-  );
-
-function dragstart() {
-  extentMin = d3.mouse(this);
-};
-
-function dragend() {
-  extentMax = d3.mouse(this);
-  var box = [
-    d3.min([extentMin[0],extentMax[0]]),
-    d3.min([extentMin[1],extentMax[1]]),
-    d3.max([extentMin[0],extentMax[0]]),
-    d3.max([extentMin[1],extentMax[1]])
-  ];
-  if (box[0] == box[2] || box[1] == box[3]) return;
-  if (_.isNaN(box[0]) ||
-      _.isNaN(box[1]) ||
-      _.isNaN(box[2]) ||
-      _.isNaN(box[3])) return;
-  d3.select("#input-realMin").attr("value", real_scale(box[0]));
-  d3.select("#input-imagMin").attr("value", imag_scale(box[1]));
-  d3.select("#input-realMax").attr("value", real_scale(box[2]));
-  d3.select("#input-imagMax").attr("value", imag_scale(box[3]));
-  real_scale.range([real_scale(box[0]), real_scale(box[2])]);
-  imag_scale.range([imag_scale(box[1]), imag_scale(box[3])]);
-  interaction_context.clearRect(0,0,width,height);  
-  jul.zoom(box[0], box[1], box[2]-box[0], box[3]-box[1]);
-};
-
-function dragging() {
-  extentMax = d3.mouse(this);
-  interaction_context.clearRect(0,0,width,height);  
-  interaction_context.fillStyle = "rgba(0,0,0,0.7)";
-  interaction_context.fillRect(0,0,width,height);  
-  interaction_context.clearRect(extentMin[0],
-                                extentMin[1],
-                                extentMax[0]-extentMin[0],
-                                extentMax[1]-extentMin[1]);
-};
+  .call(zoom);
 
 window.onresize = function() {
   width = document.body.clientWidth;
   height = document.body.clientHeight;
 
-  var real_scale = d3.scale.linear()
-    .domain([0, width])
+  real_scale.range([0, width]);
+  imag_scale.range([0, height]);
 
-  var imag_scale = d3.scale.linear()
-    .domain([0, height])
+  zoom
+    .x(real_scale)
+    .y(imag_scale)
+    .scale(1)
+    .translate([0,0]);
 
-  jul.x_extent(width);
-  jul.y_extent(height);
+  jul.x_extent(width).y_extent(height);
 
   d3.selectAll("canvas")
     .attr("width", width)
     .attr("height", height);
+  onzoom();
 };
 </script>
