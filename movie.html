@@ -38,7 +38,7 @@ var visible_ctx = visible_canvas.getContext('2d');
 
 visible_ctx.fillStyle = "white";
 visible_ctx.font = "12pt sans-serif";
-visible_ctx.fillText("rendering...", width/2, height/2);
+visible_ctx.fillText("rendering... shrink + refresh to render frames faster", width/2, height/2);
 
 jul = julia(width,height)
   .context(ctx)
