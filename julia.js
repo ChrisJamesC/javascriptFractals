@@ -146,6 +146,20 @@ function julia(x_extent, y_extent) {
     return this;
   };
 
+  jul.x_extent = function(_) {
+    if (!arguments.length) return x_extent;
+    x_extent = _;
+    jul.resetForRender();
+    return this;
+  };
+
+  jul.y_extent = function(_) {
+    if (!arguments.length) return y_extent;
+    y_extent = _;
+    jul.resetForRender();
+    return this;
+  };
+
   jul.go = function() {
     var render = function() {
       jul.render();
