@@ -10,5 +10,5 @@ Changes from Doug's:
 
 Two more demos:
 
-* [Deep color scale](deepcolor.html)
-* [Multi-frame movie](movie.html) - takes a few minutes to render several frames
+* [Deep color scale](/d/3736720/deepcolor.html)
+* [Multi-frame movie](/d/3736720/movie.html) - takes a few minutes to render several frames
