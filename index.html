@@ -186,12 +186,23 @@
         d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
         d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
         jul.changeMethod(method, real_scale.domain(), imag_scale.domain());
+        updateKeys();
     }
 
     // bind inputs to julia parameters
     d3.select("#tools").html("")
-    d3.keys(jul.__).forEach(function(key) {
-        d3.select("#tools")
+
+
+    function updateKeys() {
+        d3.select("#tools").html("")
+        d3.keys(jul.__).filter(
+            function(key){
+                var specificFilter = jul.__.method == "j" | ((key != "CR") & (key != "CI"))
+                var generalFilter = (key!= "method");
+                return specificFilter & generalFilter
+            }).
+        forEach(function(key) {
+            d3.select("#tools")
                 .append("div")
                 .html(key + "<br/>")
                 .append("input")
@@ -203,7 +214,9 @@
                 .on("keyup", function() {
                     jul[key](this.value);
                 });
-    });
+        });
+    }
+    updateKeys();
 
     jul.render();
     jul.go();
