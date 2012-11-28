@@ -1,6 +1,10 @@
-A [Julia set](http://paulbourke.net/fractals/juliaset/) with constant -0.8 + 0.156i.
+A [Julia set](http://paulbourke.net/fractals/juliaset/) with constant -0.8 + 0.156i or a Mandelbrot set. 
 
-Based on [DougX's Canvas Fractals](http://dougx.net/fractals/fractals.html).
+
+Based on [syntagmatic zoomable Julia](http://bl.ocks.org/3736720) which is based on [DougX's Canvas Fractals](http://dougx.net/fractals/fractals.html).
+
+Changes form syntagmatic's: 
+* Added support for Mandelbrot fractals
 
 Changes from Doug's:
 
