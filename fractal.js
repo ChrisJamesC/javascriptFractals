@@ -52,6 +52,11 @@ function fractal(x_extent, y_extent) {
     jul.resetForRender();
   }
 
+  jul.changeColor = function(color){
+    jul.color = color;
+    jul.resetForRender();
+  }
+
   jul.iterate = function(real,imag) {
       if(__.method == "j") return  jul.juliaIterate(real, imag)
       else return jul.mandelbrotIterate(real,imag)

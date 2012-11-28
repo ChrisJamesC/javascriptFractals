@@ -116,6 +116,9 @@ canvas {
 #methods {
     height: 52px;
 }
+#colors {
+    height: 70px;
+}
 #currentMethod{
     color: #eee;
     position: fixed;
