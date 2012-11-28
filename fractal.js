@@ -1,6 +1,8 @@
-function julia(x_extent, y_extent) {
+function fractal(x_extent, y_extent) {
   var jul = {};
+
   var __ = {
+    method: "m",
     realMin: -1.7,
     realMax: 1.7,
     imagMin: -1,
@@ -8,7 +10,7 @@ function julia(x_extent, y_extent) {
     CR: -.8,
     CI: .156,
     maxIter: 2000,
-    minResolution: 40,
+    minResolution: 40
   };
 
   var events = d3.dispatch.apply(this, ["done"].concat(d3.keys(__)));
@@ -37,25 +39,50 @@ function julia(x_extent, y_extent) {
     jul.resetForRender();
   }
 
+  jul.changeMethod = function(method, reals, imags) {
+    if(method == "j") __.method = "j";
+    else __.method = "m";
+    done = true;
+    __.realMin = reals[0];
+    __.realMax = reals[1];
+    __.imagMin = imags[0];
+    __.imagMax = imags[1];
+    jul.resetForRender();
+  }
+
   jul.iterate = function(real,imag) {
-    var zr = real;
-    var zi = imag;
-
     var iterations = 0;
+    if(__.method == "j"){
+      var zr = real;
+      var zi = imag;
 
-    while (true) {
-      iterations++;
-      if ( iterations > __.maxIter ) return 0;
-      zr_next = zr * zr - zi * zi + __.CR;
-      zi_next = 2 * zi * zr + __.CI;
-      zr = zr_next;
-      zi = zi_next;
-      if ( zr > 4 ) return iterations;
-      if ( zi > 4 ) return iterations;
+      while (true) {
+        iterations++;
+        if ( iterations > __.maxIter ) return 0;
+        zr_next = zr * zr - zi * zi + __.CR;
+        zi_next = 2 * zi * zr + __.CI;
+        zr = zr_next;
+        zi = zi_next;
+        if ( zr > 4 ) return iterations;
+        if ( zi > 4 ) return iterations;
+      }
+    } else {
+      var zr = 0;
+      var zi = 0;
+      while (true) {
+        iterations++;
+        if ( iterations > __.maxIter ) return 0;
+        zr_next = zr * zr - zi * zi + real;
+        zi_next = 2 * zi * zr +imag;
+        zr = zr_next;
+        zi = zi_next;
+        if ( zr > 4 ) return iterations;
+        if ( zi > 4 ) return iterations;
+      }
     }
     return iterations;
   }
- 
+
   jul.render = function() {
     if (done)
       return;
@@ -72,16 +99,16 @@ function julia(x_extent, y_extent) {
     var ll = _x + 6; // how many columns to render at once
     for ( ; _x < ll; ++_x) {
       for ( _y = 0; _y < y_extent; ++_y) {
-         var fx = _x / x_extent;
-         var fy = _y / y_extent;
+        var fx = _x / x_extent;
+        var fy = _y / y_extent;
 
-         var real = fx * realSpan + realMin;
-         var imag = fy * imagSpan + imagMin;
+        var real = fx * realSpan + realMin;
+        var imag = fy * imagSpan + imagMin;
 
-         var iterations = jul.iterate(real,imag);
+        var iterations = jul.iterate(real,imag);
 
-         ctx.fillStyle = fast_color(iterations);
-         ctx.fillRect(_x,_y,1,1);
+        ctx.fillStyle = fast_color(iterations);
+        ctx.fillRect(_x,_y,1,1);
       }
     }
 
@@ -93,7 +120,7 @@ function julia(x_extent, y_extent) {
 
   jul.boxes = function() {
     if ( resolution <= 3 ) {
-       return false;
+      return false;
     }
 
     var realSpan = __.realMax - __.realMin;
@@ -101,18 +128,18 @@ function julia(x_extent, y_extent) {
     var fast_color = _.memoize(jul.color);
 
     for ( _x = 0; _x < x_extent; _x += resolution) {
-       for ( _y = 0; _y < y_extent; _y += resolution) {
-          var fx = (_x + resolution/2) / x_extent;
-          var fy = (_y + resolution/2) / y_extent;
+      for ( _y = 0; _y < y_extent; _y += resolution) {
+        var fx = (_x + resolution/2) / x_extent;
+        var fy = (_y + resolution/2) / y_extent;
 
-          var real = fx * realSpan + __.realMin;
-          var imag = fy * imagSpan + __.imagMin;
+        var real = fx * realSpan + __.realMin;
+        var imag = fy * imagSpan + __.imagMin;
 
-          var iterations = jul.iterate(real,imag);
+        var iterations = jul.iterate(real,imag);
 
-          ctx.fillStyle = fast_color(iterations);
-          ctx.fillRect(_x,_y,resolution,resolution);
-       }
+        ctx.fillStyle = fast_color(iterations);
+        ctx.fillRect(_x,_y,resolution,resolution);
+      }
     }
 
     resolution -= 3;
@@ -157,7 +184,7 @@ function julia(x_extent, y_extent) {
 
   // getter/setter with event firing
   function getset(obj,state)  {
-    d3.keys(state).forEach(function(key) {   
+    d3.keys(state).forEach(function(key) {
       obj[key] = function(x) {
         if (!arguments.length) return state[key];
         var old = state[key];

@@ -1,206 +1,269 @@
 <style type="text/css">
-html, body {
-  padding; 0;
-  margin: 0;
-}
-body {
-  background:#000;
-  color:white;
-  font-family: Arial,Helvetica,Sans-serif;
-  font-size: 12px;
-}
-a:hover {
-  text-decoration: none;
-}
-canvas {
-  position: absolute;
-  cursor: move;
-}
-#tools {
-  color: #eee;
-  position: fixed;
-  top: 44px;
-  left: 12px;
-  line-height: 18px;
-  padding: 6px 8px 6px 8px;
-  z-index: 10;
-  background: rgba(0,0,0,0.6);
-  height: 40px;
-  border-radius: 4px;
-}
-#tools:hover {
-  opacity: 1;
-}
-#tools > div {
-  width: 80px;
-  float: left;
-}
-#tools input[type=text] {
-  color: #fff;
-  font-weight: bold;
-  width: 70px;
-  margin: 0 0 4px 0;
-  padding: 4px 5px;
-  background: rgba(0,0,0,0.1);
-  border: none;
-}
-#tools:hover input[type=text] {
-  color: #eee;
-}
-#zoom {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  font-size: 24px;
-  line-height: 24px;
-  font-weight: bold;
-  text-align: center;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-#zoom div {
-  float: left;
-  width: 24px;
-  background: rgba(0,0,0,0.6);
-  border-radius: 4px;
-  margin-right: 4px;
-  padding: 2px;
-}
-#zoom div:hover {
-  cursor: pointer;
-  background: rgba(0,0,0,1);
-}
-#zoom-reset {
-  font-size: 16px;
-}
-#zoom #zoom-gear {
-  font-size: 16px;
-  color: rgba(255,255,255,0.3);
-  background: rgba(0,0,0,0.2);
-}
-#zoom #zoom-gear:hover {
-  color: rgba(255,255,255,1);
-}
-#zoom #zoom-gear.active {
-  color: inherit;
-  background: rgba(0,0,0,0.6);
-}
+    html, body {
+        padding: 0;
+        margin: 0;
+    }
+    body {
+        background:#000;
+        color:white;
+        font-family: Arial,Helvetica,Sans-serif;
+        font-size: 12px;
+    }
+    a:hover {
+        text-decoration: none;
+    }
+    canvas {
+        position: absolute;
+        cursor: move;
+    }
+    .tools {
+        color: #eee;
+        position: fixed;
+        top: 44px;
+        left: 12px;
+        line-height: 18px;
+        padding: 6px 8px 6px 8px;
+        z-index: 10;
+        background: rgba(0,0,0,0.6);
+        height: 40px;
+        border-radius: 4px;
+    }
+    .tools:hover {
+        opacity: 1;
+    }
+    .tools > div {
+        width: 80px;
+        float: left;
+    }
+    .tools input[type=text] {
+        color: #fff;
+        font-weight: bold;
+        width: 70px;
+        margin: 0 0 4px 0;
+        padding: 4px 5px;
+        background: rgba(0,0,0,0.1);
+        border: none;
+    }
+
+    .tools:hover input[type=text] {
+        color: #eee;
+    }
+    #zoom {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        font-size: 24px;
+        line-height: 24px;
+        font-weight: bold;
+        text-align: center;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    #zoom div {
+        float: left;
+        width: 24px;
+        /*background: rgba(0,0,0,0.6);*/
+        border-radius: 4px;
+        margin-right: 4px;
+        padding: 2px;
+        font-size: 16px;
+        color: rgba(255,255,255,0.3);
+        background: rgba(0,0,0,0.2);
+    }
+    #zoom div:hover {
+        cursor: pointer;
+        /*background: rgba(0,0,0,1);*/
+        color: rgba(255,255,255,1);
+    }
+    #zoom-reset {
+        font-size: 16px;
+    }
+    #zoom #zoom-gear {
+        font-size: 16px;
+        color: rgba(255,255,255,0.3);
+        background: rgba(0,0,0,0.2);
+    }
+    #zoom #zoom-gear:hover {
+        color: rgba(255,255,255,1);
+    }
+    #zoom #zoom-gear.active {
+        color: inherit;
+        background: rgba(0,0,0,0.6);
+    }
+
+    #zoom #zoom-method {
+        font-size: 16px;
+        color: rgba(255,255,255,0.3);
+        background: rgba(0,0,0,0.2);
+    }
+    #zoom #zoom-method:hover {
+        color: rgba(255,255,255,1);
+    }
+    #zoom #zoom-method.active {
+        color: inherit;
+        background: rgba(0,0,0,0.6);
+    }
+    .choice {
+        cursor: pointer;
+    }
 </style>
 <canvas id="theCanvas" width="803" height="400"></canvas>
 <canvas id="interactionCanvas" width="803" height="400"></canvas>
 <div id="zoom">
-  <div id="zoom-reset" title="Reset zoom">&sect;</div>
-  <div id="zoom-gear" title="Change fractal parameters">&#9881;</div>
+    <div id="zoom-reset" title="Reset zoom">&sect;</div>
+    <div id="zoom-gear" title="Change fractal parameters">&#9881;</div>
+    <div id="zoom-method" title="Change method">&#10765;</div>
 </div>
-<div id="tools" style="display:none">
+<div id="tools" class="tools" style="display:none">
+</div>
+<div id="methods" class="tools" style="display:none">
+    <span class="choice" onclick="changeMethod(mandelbrot)">Mandelbrot</span><br/>
+    <span class="choice" onclick="changeMethod(julia)">Julia</span>
 </div>
 <script src="http://d3js.org/d3.v2.js"></script>
 <script src="http://underscorejs.org/underscore.js"></script>
-<script src="julia.js"></script>
+<script src="fractal.js"></script>
 <script>
-var width = document.body.clientWidth;
-var height = document.body.clientHeight;
-var canvas = document.getElementById('theCanvas');
-var interaction_canvas = document.getElementById('interactionCanvas');
+    var width = document.body.clientWidth;
+    var height = document.body.clientHeight;
+    var canvas = document.getElementById('theCanvas');
+    var interaction_canvas = document.getElementById('interactionCanvas');
 
-var real_scale = d3.scale.linear()
-  .range([0, width])
-  .domain([-1.7,1.7]);
+    var julia = "j"
+    var mandelbrot = "m"
 
-var imag_scale = d3.scale.linear()
-  .range([0, height])
-  .domain([-1,1]);
+    var real_scale = d3.scale.linear()
+        .range([0, width])
+        .domain([-1.7,1.7]);
 
-d3.selectAll("canvas")
-  .attr("width", width)
-  .attr("height", height);
+    var imag_scale = d3.scale.linear()
+        .range([0, height])
+        .domain([-1,1]);
 
-var ctx = canvas.getContext('2d'); 
-var interaction_context = interaction_canvas.getContext('2d'); 
+    d3.selectAll("canvas")
+        .attr("width", width)
+        .attr("height", height);
 
-jul = julia(width,height)
-  .context(ctx)
-  .minResolution(21);
+    var ctx = canvas.getContext('2d');
+    var interaction_context = interaction_canvas.getContext('2d');
 
-jul.color = d3.scale.linear()
-      .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
-      .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
-      .interpolate(d3.interpolateHcl);
 
-var zoom = d3.behavior.zoom()
-  .x(real_scale)
-  .y(imag_scale)
-  .on("zoom", onzoom)
+    jul = fractal(width,height)
+            .context(ctx)
+            .minResolution(21);
 
-function onzoom() {
-  d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
-  d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
-  d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
-  d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
-  jul.zoom(real_scale.domain(), imag_scale.domain());
-};
+    jul.color = d3.scale.linear()
+            .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
+            .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
+            .interpolate(d3.interpolateHcl);
 
-// bind inputs to julia parameters
-d3.keys(jul.__).forEach(function(key) {
-  d3.select("#tools")
-    .append("div")
-    .html(key + "<br/>")
-    .append("input")
-    .attr({
-      id: "input-" + key,
-      type: "text",
-      value: jul[key]()
-    })
-    .on("keyup", function() {
-      jul[key](this.value);
+    var zoom = d3.behavior.zoom()
+            .x(real_scale)
+            .y(imag_scale)
+            .on("zoom", onzoom)
+
+    function onzoom() {
+        d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
+        d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
+        d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
+        d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
+        jul.zoom(real_scale.domain(), imag_scale.domain());
+    };
+
+    function changeMethod(method){
+        real_scale.domain([-1.7,1.7]);
+        imag_scale.domain([-1,1]);
+        zoom.scale(1)
+                .translate([0,0])
+                .x(real_scale)
+                .y(imag_scale);
+        d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
+        d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
+        d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
+        d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
+        jul.changeMethod(method, real_scale.domain(), imag_scale.domain());
+    }
+
+    // bind inputs to julia parameters
+    d3.select("#tools").html("")
+    d3.keys(jul.__).forEach(function(key) {
+        d3.select("#tools")
+                .append("div")
+                .html(key + "<br/>")
+                .append("input")
+                .attr({
+                    id: "input-" + key,
+                    type: "text",
+                    value: jul[key]()
+                })
+                .on("keyup", function() {
+                    jul[key](this.value);
+                });
     });
-});
 
-jul.render();
-jul.go();
+    jul.render();
+    jul.go();
 
-// toggle tools visibility
-var gear_active = false;
-d3.select("#zoom-gear").on("click", function() {
-  gear_active = !gear_active;
-  d3.select("#tools").style("display", function() { return gear_active ? "block" : "none" });
-  d3.select(this).classed("active", gear_active);
-});
-d3.select("#zoom-reset").on("click", function() {
-  real_scale.domain([-1.7,1.7]);
-  imag_scale.domain([-1,1]);
-  zoom.scale(1)
-    .translate([0,0])
-    .x(real_scale)
-    .y(imag_scale);
-  onzoom();
-});
+    // toggle tools visibility
+    var gear_active = false;
+    d3.select("#zoom-gear").on("click", function() {
+        gear_active = !gear_active;
+        if(gear_active) {
+            method_active=false;
+            d3.select("#methods").style("display","none" );
+            d3.select("#zoom-method").classed("active", false);
+        }
+        d3.select("#tools").style("display", function() { return gear_active ? "block" : "none" });
+        d3.select(this).classed("active", gear_active);
+    });
+    var method_active= false
+    d3.select("#zoom-method").on("click", function() {
+        method_active = !method_active;
+        if(method_active) {
+            gear_active=false;
+            d3.select("#tools").style("display","none" );
+            d3.select("#zoom-gear").classed("active", false);
+        }
+        d3.select("#methods").style("display", function() { return method_active ? "block" : "none" });
+        d3.select(this).classed("active", method_active);
+    });
+    d3.select("#zoom-reset").on("click", function() {
+        real_scale.domain([-1.7,1.7]);
+        imag_scale.domain([-1,1]);
+        zoom.scale(1)
+                .translate([0,0])
+                .x(real_scale)
+                .y(imag_scale);
+        onzoom();
+    });
 
-d3.select(interaction_canvas)
-  .call(zoom);
 
-window.onresize = function() {
-  width = document.body.clientWidth;
-  height = document.body.clientHeight;
+    d3.select(interaction_canvas)
+            .call(zoom);
 
-  real_scale.range([0, width]);
-  imag_scale.range([0, height]);
+    window.onresize = function() {
+        width = document.body.clientWidth;
+        height = document.body.clientHeight;
 
-  zoom
-    .x(real_scale)
-    .y(imag_scale)
-    .scale(1)
-    .translate([0,0]);
+        real_scale.range([0, width]);
+        imag_scale.range([0, height]);
 
-  jul.x_extent(width).y_extent(height);
+        zoom
+                .x(real_scale)
+                .y(imag_scale)
+                .scale(1)
+                .translate([0,0]);
 
-  d3.selectAll("canvas")
-    .attr("width", width)
-    .attr("height", height);
-  onzoom();
-};
+        jul.x_extent(width).y_extent(height);
+
+        d3.selectAll("canvas")
+                .attr("width", width)
+                .attr("height", height);
+        onzoom();
+    }
+
 </script>
