@@ -3,7 +3,7 @@ A [Julia set](http://paulbourke.net/fractals/juliaset/) with constant -0.8 + 0.1
 
 Based on [syntagmatic zoomable Julia](http://bl.ocks.org/3736720) which is based on [DougX's Canvas Fractals](http://dougx.net/fractals/fractals.html).
 
-Changes form syntagmatic's: 
+Changes from syntagmatic's: 
 * Added support for Mandelbrot fractals
 
 Changes from Doug's:
