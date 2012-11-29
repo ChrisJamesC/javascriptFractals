@@ -1,4 +1,4 @@
-A [Julia set](http://paulbourke.net/fractals/juliaset/) with constant -0.8 + 0.156i, a Mandelbrot set or a Newton fractal.
+A [Julia set](http://paulbourke.net/fractals/juliaset/), a Mandelbrot set or a Newton fractal.
 
 
 Based on [syntagmatic zoomable Julia](http://bl.ocks.org/3736720) and [DougX's Canvas Fractals](http://dougx.net/fractals/fractals.html).
