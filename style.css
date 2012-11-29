@@ -106,6 +106,18 @@ canvas {
     color: inherit;
     background: rgba(0,0,0,0.6);
 }
+#zoom #zoom-color {
+    font-size: 16px;
+    color: rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.2);
+}
+#zoom #zoom-color:hover {
+    color: rgba(255,255,255,1);
+}
+#zoom #zoom-color.active {
+    color: inherit;
+    background: rgba(0,0,0,0.6);
+}
 .choice {
     cursor: pointer;
 }
@@ -128,6 +140,6 @@ canvas {
     padding: 6px 8px 6px 8px;
     z-index: 10;
     background: rgba(0,0,0,0.6);
-    height: 20px;
+    /*height: 20px;*/
     border-radius: 4px;
 }

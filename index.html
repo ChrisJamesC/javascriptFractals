@@ -142,7 +142,7 @@
         d3.keys(jul.__).filter(
             function(key){
                 var specificFilterM = jul.__.method == mandelbrot | (key != "zpower");
-                var specificFilterJ = jul.__.method == julia | ((key != "CR") & (key != "CI"));
+                var specificFilterJ = jul.__.method == julia | ((key != "CR") & (key != "CI") & (key!="jpower"));
                 var specificFilterN = jul.__.method == newton | ((key != "newtonThresh") & (key != "newtonContrast"));
                 var generalFilter = (key!= "method");
                 return specificFilterM & specificFilterJ & specificFilterN & generalFilter;

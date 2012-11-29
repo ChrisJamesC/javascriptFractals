@@ -3,7 +3,7 @@ function fractal(x_extent, y_extent) {
 
   var _methods = {
     mandelbrot: {id: "m", name: "Mandelbrot", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag, __.zpower)}},
-    julia: {id: "j", name: "Julia", iterFunc: juliaIterate },
+    julia: {id: "j", name: "Julia", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, __.jpower)}},
     newton:  {id: "n", name: "Newton", iterFunc: null }
   }
 
@@ -19,7 +19,8 @@ function fractal(x_extent, y_extent) {
     minResolution: 40,
     newtonThresh: 0.000001,
     newtonContrast: 50,
-    zpower: 2
+    zpower: 2,
+    jpower: 2
   };
 
   var events = d3.dispatch.apply(this, ["done"].concat(d3.keys(__)));

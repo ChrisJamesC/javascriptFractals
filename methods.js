@@ -1,13 +1,14 @@
 /* Julia Set */
-juliaIterate = function(jul, real,imag){
+juliaIterate = function(jul, real,imag, power){
   var iterations = 0;
   var zr = real;
   var zi = imag;
   while (true) {
     iterations++;
     if ( iterations > jul.__.maxIter ) return 0;
-    zr_next = zr * zr - zi * zi + jul.__.CR;
-    zi_next = 2 * zi * zr + jul.__.CI;
+    z_pow = intPower(zr, zi, power)
+    zr_next = z_pow[0] + jul.__.CR;
+    zi_next = z_pow[1] + jul.__.CI;
     zr = zr_next;
     zi = zi_next;
     if ( zr > 4 ) return iterations;
@@ -109,6 +110,7 @@ makeColorString = function(jul, r,g,b,i)
  * Support for n = 0,1,2,3,4,6
  */
 intPower = function(real, imag, n){
+  //if(n ==null) return
   if(n==0) return [1,0];
   if(n==1) return [real, imag];
   var z2 = multiply(real, imag, real, imag);
@@ -119,7 +121,7 @@ intPower = function(real, imag, n){
   if(n==4) return z4;
   var z8 = multiply(z4[0], z4[1], z4[0], z4[1]);
   if(n==8) return z8;
-  return [0,0]
+  return z2
 }
 
 multiply = function(r1, i1, r2, i2) {
