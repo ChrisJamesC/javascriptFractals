@@ -3,6 +3,7 @@
     <script src="http://d3js.org/d3.v2.js"></script>
     <script src="http://underscorejs.org/underscore.js"></script>
     <script src="fractal.js"></script>
+    <script src="methods.js"></script>
 </head>
 
 <canvas id="theCanvas" width="803" height="400"></canvas>
@@ -56,9 +57,9 @@
             .minResolution(21);
 
     /* Methods */
-    var julia = "j";
-    var mandelbrot = "m";
-    var newton = "n";
+    var julia = jul._methods.julia;
+    var mandelbrot = jul._methods.mandelbrot;
+    var newton = jul._methods.newton;
 
     /* Colors */
     var bw = d3.scale.sqrt()
@@ -111,13 +112,17 @@
     }
 
     function activate(method){
-        d3.select("#currentMethod").text(function(){if(method==mandelbrot) return "Mandelbrot"; else if (method==julia) return "Julia"; else return "Newton"})
-        d3.select("#mandelbrot").classed("active", method==mandelbrot);
-        d3.select("#julia").classed("active", method==julia);
-        d3.select("#newton").classed("active", method==newton);
+        d3.select("#currentMethod").text(method.name)
+        d3.select("#" +mandelbrot.id).classed("active", method==mandelbrot);
+        d3.select("#" +julia.id).classed("active", method==julia);
+        d3.select("#" +newton.id).classed("active", method==newton);
+        d3.keys(jul._methods).forEach(function(key) {
+            var m = jul._methods[key]
+            d3.select("#"+m.id) .classed("active", m==method)
+        });
         d3.select("#zoom-color").style("display", function(){return method!=newton ? "block" : "none"})
     }
-    activate(jul.__.method)
+
 
     function changeColor(color){
         jul.changeColor(color)
@@ -136,10 +141,11 @@
         d3.select("#tools").html("")
         d3.keys(jul.__).filter(
             function(key){
-                var specificFilterJ = jul.__.method == "j" | ((key != "CR") & (key != "CI"));
-                var specificFilterN = jul.__.method == "n" | ((key != "newtonThresh") & (key != "newtonContrast"));
+                var specificFilterM = jul.__.method == mandelbrot | (key != "zpower");
+                var specificFilterJ = jul.__.method == julia | ((key != "CR") & (key != "CI"));
+                var specificFilterN = jul.__.method == newton | ((key != "newtonThresh") & (key != "newtonContrast"));
                 var generalFilter = (key!= "method");
-                return specificFilterJ & specificFilterN & generalFilter;
+                return specificFilterM & specificFilterJ & specificFilterN & generalFilter;
             }).
         forEach(function(key) {
             d3.select("#tools")
@@ -158,6 +164,21 @@
     }
     updateKeys();
 
+    function updateMethods() {
+        d3.select("#methods").html("")
+        d3.keys(jul._methods).
+                forEach(function(key) {
+                    var method = jul._methods[key]
+                    d3.select("#methods")
+                        .append("span")
+                        .attr("id", method.id)
+                        .attr("class", "choice")
+                        .html(method.name + "<br/>")
+                        .on("click", function(){changeMethod(method)})
+                });
+    }
+    updateMethods()
+    activate(jul.__.method)
 
     jul.render();
     jul.go();
