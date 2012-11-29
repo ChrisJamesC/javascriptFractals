@@ -7,7 +7,6 @@ Changes from syntagmatic's:
 * Support for Mandelbrot fractals (also with z^3, z^4, z^8)
 * Support for Newton fractals
 * Support for different color spaces
-* 
 
 Changes from Doug's:
 
