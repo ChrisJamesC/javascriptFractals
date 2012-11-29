@@ -5,7 +5,7 @@ juliaIterate = function(jul, real,imag){
   var zi = imag;
   while (true) {
     iterations++;
-    if ( iterations > jul.__.maxIter ) return 0;
+    if ( iterations > jul.__.maxIter ) return jul.__.maxIter;
     zr_next = zr * zr - zi * zi + jul.__.CR;
     zi_next = 2 * zi * zr + jul.__.CI;
     zr = zr_next;
@@ -24,7 +24,7 @@ mandelbrotIterate = function(jul, real,imag, power){
   var zi = 0;
   while (true) {
     iterations++;
-    if ( iterations > jul.__.maxIter ) return 0;
+    if ( iterations > jul.__.maxIter ) return jul.__.maxIter;
     z_pow = intPower(zr, zi, power)
     zr_next = z_pow[0] + real;
     zi_next = z_pow[1] +imag;
