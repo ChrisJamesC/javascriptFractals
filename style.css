@@ -121,8 +121,14 @@ canvas {
 .choice {
     cursor: pointer;
 }
-
 .choice.active {
+    font-weight: bold;
+}
+.subchoice {
+    cursor: pointer;
+    margin-left: 10px;
+}
+.subchoice.active {
     font-weight: bold;
 }
 #methods {

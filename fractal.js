@@ -2,9 +2,37 @@ function fractal(x_extent, y_extent) {
   var jul = {};
 
   var _methods = {
-    mandelbrot: {id: "m", name: "Mandelbrot", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag, __.zpower)}},
-    julia: {id: "j", name: "Julia", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, __.jpower)}},
+    mandelbrot: {id: "m", name: "Mandelbrot", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag, 2)}},
+    mandelbrot3: {id: "m3", name: "Mandelbrot z^3", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,3)}},
+    mandelbrot4: {id: "m4", name: "Mandelbrot z^4", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,4)}},
+    mandelbrot8: {id: "m8", name: "Mandelbrot z^8", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,8)}},
+    tricorn: {id: "t", name: "Tricorn", iterFunc: tricornIterate},
+    burningShip: {id: "bs", name: "Burning ship", iterFunc: burningShipIterate},
+    julia: {id: "j", name: "Julia", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}},
+    julia3: {id: "j3", name: "Julia z^3", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 3)}},
+    juliaCos: {id: "jcos", name: "Julia cos(z)+c", iterFunc: juliaCosIterate},
     newton:  {id: "n", name: "Newton", iterFunc: null }
+  }
+
+  var _menuItems = {
+    mandelbrotItems: {
+      name:"Mandelbrot",
+      id:"mandelbrotMenu",
+      main:_methods.mandelbrot,
+      others:[_methods.mandelbrot3, _methods.mandelbrot4, _methods.mandelbrot8, _methods.tricorn, _methods.burningShip]
+    },
+    juliaItems: {
+      name:"Julia",
+      id:"JuliaMenu",
+      main: _methods.julia,
+      others: [_methods.julia3]
+    },
+    NewtonItems:{
+      name:"Newton",
+      id:"NewtonMenu",
+      main:_methods.newton,
+      others: []
+    }
   }
 
   var __ = {
@@ -18,9 +46,7 @@ function fractal(x_extent, y_extent) {
     maxIter: 2000,
     minResolution: 40,
     newtonThresh: 0.000001,
-    newtonContrast: 50,
-    zpower: 2,
-    jpower: 2
+    newtonContrast: 50
   };
 
   var events = d3.dispatch.apply(this, ["done"].concat(d3.keys(__)));
@@ -31,7 +57,7 @@ function fractal(x_extent, y_extent) {
     .interpolate(d3.interpolateLab);
 
   jul.__ = __;
-  jul._methods = _methods
+  jul._menuItems = _menuItems
   getset(jul, __, events);
   //getset(jul, _methods, events);
   d3.rebind(jul, events, "on");

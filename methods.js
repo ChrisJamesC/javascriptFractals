@@ -3,6 +3,7 @@ juliaIterate = function(jul, real,imag, power){
   var iterations = 0;
   var zr = real;
   var zi = imag;
+  var zr_next, zi_next, z_pow;
   while (true) {
     iterations++;
     if ( iterations > jul.__.maxIter ) return 0;
@@ -16,17 +17,44 @@ juliaIterate = function(jul, real,imag, power){
   }
   return iterations;
 }
+var cosh = function(x){
+  return (Math.pow(Math.E, x) + Math.pow(Math.E, -x)) / 2;
+};
+var sinh = function(x){
+  return (Math.pow(Math.E, x) - Math.pow(Math.E, -x)) / 2;
+};
+juliaCosIterate = function(jul, real,imag){
+  var iterations = 0;
+  var zr = real;
+  var zi = imag;
+  var zr_next, zi_next, z_pow;
+  while (true) {
+    iterations++;
+    if ( iterations > jul.__.maxIter ) return 0;
+    //z_pow = intPower(zr, zi, power)
+    zr_next = Math.sin(real) * cosh(imag) + jul.__.CR;
+    zi_next = Math.cos(real) * sinh(imag) + jul.__.CI;
+    zr = zr_next;
+    zi = zi_next;
+    if ( Math.abs(zr) > 4 ) return iterations;
+    if ( Math.abs(zi) > 4 ) return iterations;
+  }
+  return iterations;
+}
+
+
 
 /* Mandelbrot Set */
-mandelbrotIterate = function(jul, real,imag, power){
+mandelbrotIterate = function(jul, real, imag, power){
   //var power= 2
   var iterations = 0;
   var zr = 0;
   var zi = 0;
+  var zr_next, zi_next, z_pow;
   while (true) {
     iterations++;
     if ( iterations > jul.__.maxIter ) return 0;
-    z_pow = intPower(zr, zi, power)
+   z_pow = intPower(zr, zi, power);
     zr_next = z_pow[0] + real;
     zi_next = z_pow[1] +imag;
     zr = zr_next;
@@ -36,6 +64,49 @@ mandelbrotIterate = function(jul, real,imag, power){
   }
   return iterations;
 }
+
+/* Tricorn Set */
+tricornIterate = function(jul, real, imag){
+  //var power= 2
+  var iterations = 0;
+  var zr = 0;
+  var zi = 0;
+  var zr_next, zi_next, z_pow;
+  while (true) {
+    iterations++;
+    if ( iterations > jul.__.maxIter ) return 0;
+    z_pow = intPower(zr, -zi, 2)
+    zr_next = z_pow[0] + real;
+    zi_next = z_pow[1] +imag;
+    zr = zr_next;
+    zi = zi_next;
+    if ( zr > 4 ) return iterations;
+    if ( zi > 4 ) return iterations;
+  }
+  return iterations;
+}
+
+/* Burning ship Set */
+burningShipIterate = function(jul, real, imag){
+  //var power= 2
+  var iterations = 0;
+  var zr = 0;
+  var zi = 0;
+  var zr_next, zi_next, z_pow;
+  while (true) {
+    iterations++;
+    if ( iterations > jul.__.maxIter ) return 0;
+    z_pow = intPower(Math.abs(zr), Math.abs(zi), 2)
+    zr_next = z_pow[0] + real;
+    zi_next = z_pow[1] +imag;
+    zr = zr_next;
+    zi = zi_next;
+    if ( zr > 4 ) return iterations;
+    if ( zi > 4 ) return iterations;
+  }
+  return iterations;
+}
+
 
 /* Newton fractals */
 newtonColor = function(jul, x,y)

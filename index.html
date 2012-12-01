@@ -4,6 +4,14 @@
     <script src="http://underscorejs.org/underscore.js"></script>
     <script src="fractal.js"></script>
     <script src="methods.js"></script>
+    <!--<link href="http://code.jquery.com/ui/1.9.2/themes/smoothness/jquery-ui.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $( "#methods" ).accordion();
+        });
+    </script>-->
 </head>
 
 <canvas id="theCanvas" width="803" height="400"></canvas>
@@ -17,9 +25,6 @@
 <div id="tools" class="tools" style="display:none">
 </div>
 <div id="methods" class="tools" style="display:none">
-    <span class="choice" id="mandelbrot" onclick="changeMethod(mandelbrot)">Mandelbrot</span><br/>
-    <span class="choice" id="julia" onclick="changeMethod(julia)">Julia</span><br/>
-    <span class="choice" id="newton" onclick="changeMethod(newton)">Newton</span>
 </div>
 <div id="colors" class="tools" style="display:none">
     <span class="choice" id="mixed" onclick="changeColor(mixed)">Mixed</span><br/>
@@ -31,122 +36,130 @@
 </div>
 
 <script>
-    var width = document.body.clientWidth;
-    var height = document.body.clientHeight;
-    var canvas = document.getElementById('theCanvas');
-    var interaction_canvas = document.getElementById('interactionCanvas');
+var width = document.body.clientWidth;
+var height = document.body.clientHeight;
+var canvas = document.getElementById('theCanvas');
+var interaction_canvas = document.getElementById('interactionCanvas');
 
-    /* Scaling */
-    var real_scale = d3.scale.linear()
-        .range([0, width])
-        .domain([-1.7,1.7]);
+/* Scaling */
+var real_scale = d3.scale.linear()
+    .range([0, width])
+    .domain([-1.7,1.7]);
 
-    var imag_scale = d3.scale.linear()
-        .range([0, height])
-        .domain([-1,1]);
+var imag_scale = d3.scale.linear()
+    .range([0, height])
+    .domain([-1,1]);
 
-    d3.selectAll("canvas")
-        .attr("width", width)
-        .attr("height", height);
+d3.selectAll("canvas")
+    .attr("width", width)
+    .attr("height", height);
 
-    var ctx = canvas.getContext('2d');
-    var interaction_context = interaction_canvas.getContext('2d');
+var ctx = canvas.getContext('2d');
+var interaction_context = interaction_canvas.getContext('2d');
 
-    jul = fractal(width,height)
-            .context(ctx)
-            .minResolution(21);
+jul = fractal(width,height)
+    .context(ctx)
+    .minResolution(21);
 
-    /* Methods */
-    var julia = jul._methods.julia;
-    var mandelbrot = jul._methods.mandelbrot;
-    var newton = jul._methods.newton;
+/* Colors */
+var bw = d3.scale.sqrt()
+    .domain([0, jul.__.maxIter])
+    .range(["white", "black"])
+    .interpolate(d3.interpolateLab);
 
-    /* Colors */
-    var bw = d3.scale.sqrt()
-            .domain([0, jul.__.maxIter])
-            .range(["white", "black"])
-            .interpolate(d3.interpolateLab);
+var mixed = d3.scale.linear()
+    .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
+    .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
+    .interpolate(d3.interpolateHcl);
 
-    var mixed = d3.scale.linear()
-            .domain([0, 12, 30, 50, 100, 180, 260, 380, 600, 800, 1200, 1600,3200])
-            .range(["moccasin", "#999", "steelblue", "yellow", "brown", "#222", "pink", "purple", "#027", "#260", "orange", "yellow", "blue"])
-            .interpolate(d3.interpolateHcl);
+var greenBlack = d3.scale.sqrt()
+    .domain([0, jul.__.maxIter])
+    .range(["black", "green"])
+    .interpolate(d3.interpolateLab);
 
-    var greenBlack = d3.scale.sqrt()
-            .domain([0, jul.__.maxIter])
-            .range(["black", "green"])
-            .interpolate(d3.interpolateLab);
+var deep = d3.scale.linear()
+    .domain(d3.range(0,2000,20))
+    .range(d3.range(0,100).map(function(i) { return d3.hcl(190+120*i, 40+35*Math.round(Math.cos(i/5)), 18+6*(i%10)).toString(); }))
+    .interpolate(d3.interpolateLab);
 
-    var deep = d3.scale.linear()
-            .domain(d3.range(0,2000,20))
-            .range(d3.range(0,100).map(function(i) { return d3.hcl(190+120*i, 40+35*Math.round(Math.cos(i/5)), 18+6*(i%10)).toString(); }))
-            .interpolate(d3.interpolateLab);
+var zoom = d3.behavior.zoom()
+    .x(real_scale)
+    .y(imag_scale)
+    .on("zoom", onzoom)
 
-    var zoom = d3.behavior.zoom()
-            .x(real_scale)
-            .y(imag_scale)
-            .on("zoom", onzoom)
+function onzoom() {
+    d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
+    d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
+    d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
+    d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
+    jul.zoom(real_scale.domain(), imag_scale.domain());
+};
 
-    function onzoom() {
-        d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
-        d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
-        d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
-        d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
-        jul.zoom(real_scale.domain(), imag_scale.domain());
-    };
+function changeMethod(method){
+    real_scale.domain([-1.7,1.7]);
+    imag_scale.domain([-1,1]);
+    zoom.scale(1)
+        .translate([0,0])
+        .x(real_scale)
+        .y(imag_scale);
+    d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
+    d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
+    d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
+    d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
+    jul.changeMethod(method, real_scale.domain(), imag_scale.domain());
+    updateKeys(method);
+    activate(method)
+}
 
-    function changeMethod(method){
-        real_scale.domain([-1.7,1.7]);
-        imag_scale.domain([-1,1]);
-        zoom.scale(1)
-                .translate([0,0])
-                .x(real_scale)
-                .y(imag_scale);
-        d3.select("#input-realMin").attr("value", real_scale.domain()[0]);
-        d3.select("#input-imagMin").attr("value", imag_scale.domain()[0]);
-        d3.select("#input-realMax").attr("value", real_scale.domain()[1]);
-        d3.select("#input-imagMax").attr("value", imag_scale.domain()[1]);
-        jul.changeMethod(method, real_scale.domain(), imag_scale.domain());
-        updateKeys();
-        activate(method)
-    }
+function activate(method){
+    d3.selectAll(".subchoice").classed("active", false)
+    d3.selectAll(".choice").classed("active", false)
+    d3.select("#"+method.id).classed("active", true)
+}
 
-    function activate(method){
-        d3.select("#currentMethod").text(method.name)
-        d3.select("#" +mandelbrot.id).classed("active", method==mandelbrot);
-        d3.select("#" +julia.id).classed("active", method==julia);
-        d3.select("#" +newton.id).classed("active", method==newton);
-        d3.keys(jul._methods).forEach(function(key) {
-            var m = jul._methods[key]
-            d3.select("#"+m.id) .classed("active", m==method)
+function updateMethods() {
+    d3.select("#methods").html("")
+    d3.keys(jul._menuItems).
+        forEach(function(menuItem) {
+            var menu = jul._menuItems[menuItem]
+            d3.select("#methods")
+                .append("span")
+                .attr("id", menu.main.id)
+                .attr("class", "choice")
+                .html(menu.name+"<br/>")
+                .on("click", function(){changeMethod(menu.main)})
+            menu.others.forEach(function(item){
+                d3.select("#methods")
+                    .append("span")
+                    .attr("id", item.id)
+                    .attr("class", "subchoice")
+                    .html(item.name+"<br/>")
+                    .on("click", function(){changeMethod(item)})
+            })
         });
-        d3.select("#zoom-color").style("display", function(){return method!=newton ? "block" : "none"})
-    }
+}
 
 
-    function changeColor(color){
-        jul.changeColor(color)
-        d3.select("#mixed").classed("active", color == mixed);
-        d3.select("#deep").classed("active", color==deep);
-        d3.select("#bw").classed("active", color==bw);
-        d3.select("#greenBlack").classed("active", color==greenBlack);
-    }
-    jul.color = mixed;
-    d3.select("#mixed").classed("active", true);
 
+function changeColor(color){
+    jul.changeColor(color)
+    d3.select("#mixed").classed("active", color == mixed);
+    d3.select("#deep").classed("active", color==deep);
+    d3.select("#bw").classed("active", color==bw);
+    d3.select("#greenBlack").classed("active", color==greenBlack);
+}
 
-    // bind inputs to julia parameters
+// bind inputs to julia parameters
+d3.select("#tools").html("")
+function updateKeys(method) {
     d3.select("#tools").html("")
-    function updateKeys() {
-        d3.select("#tools").html("")
-        d3.keys(jul.__).filter(
-            function(key){
-                var specificFilterM = jul.__.method == mandelbrot | (key != "zpower");
-                var specificFilterJ = jul.__.method == julia | ((key != "CR") & (key != "CI") & (key!="jpower"));
-                var specificFilterN = jul.__.method == newton | ((key != "newtonThresh") & (key != "newtonContrast"));
-                var generalFilter = (key!= "method");
-                return specificFilterM & specificFilterJ & specificFilterN & generalFilter;
-            }).
+    d3.keys(jul.__).filter(
+        function(key){
+            var specificFilterJ = (method.id == 'j' || method.id=='j3') | ((key != "CR") & (key != "CI"));
+            var specificFilterN = method.id== 'n' | ((key != "newtonThresh") & (key != "newtonContrast"));
+            var generalFilter = (key!= "method");
+            return specificFilterJ & specificFilterN & generalFilter;
+        }).
         forEach(function(key) {
             d3.select("#tools")
                 .append("div")
@@ -161,103 +174,91 @@
                     jul[key](this.value);
                 });
         });
+}
+
+jul.color = mixed;
+d3.select("#mixed").classed("active", true);
+updateKeys(jul.__.method);
+updateMethods()
+activate(jul.__.method)
+jul.render();
+jul.go();
+
+// toggle tools visibility
+var gear_active = false;
+d3.select("#zoom-gear").on("click", function() {
+    gear_active = !gear_active;
+    if(gear_active) {
+        method_active=false;
+        d3.select("#methods").style("display","none" );
+        d3.select("#zoom-method").classed("active", false);
+        color_active=false;
+        d3.select("#colors").style("display","none" );
+        d3.select("#zoom-color").classed("active", false);
     }
-    updateKeys();
-
-    function updateMethods() {
-        d3.select("#methods").html("")
-        d3.keys(jul._methods).
-                forEach(function(key) {
-                    var method = jul._methods[key]
-                    d3.select("#methods")
-                        .append("span")
-                        .attr("id", method.id)
-                        .attr("class", "choice")
-                        .html(method.name + "<br/>")
-                        .on("click", function(){changeMethod(method)})
-                });
+    d3.select("#tools").style("display", function() { return gear_active ? "block" : "none" });
+    d3.select(this).classed("active", gear_active);
+});
+var method_active= false
+d3.select("#zoom-method").on("click", function() {
+    method_active = !method_active;
+    if(method_active) {
+        gear_active=false;
+        d3.select("#tools").style("display","none" );
+        d3.select("#zoom-gear").classed("active", false);
+        color_active=false;
+        d3.select("#colors").style("display","none" );
+        d3.select("#zoom-color").classed("active", false);
     }
-    updateMethods()
-    activate(jul.__.method)
-
-    jul.render();
-    jul.go();
-
-    // toggle tools visibility
-    var gear_active = false;
-    d3.select("#zoom-gear").on("click", function() {
-        gear_active = !gear_active;
-        if(gear_active) {
-            method_active=false;
-            d3.select("#methods").style("display","none" );
-            d3.select("#zoom-method").classed("active", false);
-            color_active=false;
-            d3.select("#colors").style("display","none" );
-            d3.select("#zoom-color").classed("active", false);
-        }
-        d3.select("#tools").style("display", function() { return gear_active ? "block" : "none" });
-        d3.select(this).classed("active", gear_active);
-    });
-    var method_active= false
-    d3.select("#zoom-method").on("click", function() {
-        method_active = !method_active;
-        if(method_active) {
-            gear_active=false;
-            d3.select("#tools").style("display","none" );
-            d3.select("#zoom-gear").classed("active", false);
-            color_active=false;
-            d3.select("#colors").style("display","none" );
-            d3.select("#zoom-color").classed("active", false);
-        }
-        d3.select("#methods").style("display", function() { return method_active ? "block" : "none" });
-        d3.select(this).classed("active", method_active);
-    });
-    var color_active= false
-    d3.select("#zoom-color").on("click", function() {
-        color_active = !color_active;
-        if(color_active) {
-            gear_active=false;
-            d3.select("#tools").style("display","none" );
-            d3.select("#zoom-gear").classed("active", false);
-            method_active=false;
-            d3.select("#methods").style("display","none" );
-            d3.select("#zoom-method").classed("active", false);
-        }
-        d3.select("#colors").style("display", function() { return color_active ? "block" : "none" });
-        d3.select(this).classed("active", color_active);
-    });
-    d3.select("#zoom-reset").on("click", function() {
-        real_scale.domain([-1.7,1.7]);
-        imag_scale.domain([-1,1]);
-        zoom.scale(1)
-                .translate([0,0])
-                .x(real_scale)
-                .y(imag_scale);
-        onzoom();
-    });
-
-    d3.select(interaction_canvas)
-            .call(zoom);
-
-    window.onresize = function() {
-        width = document.body.clientWidth;
-        height = document.body.clientHeight;
-
-        real_scale.range([0, width]);
-        imag_scale.range([0, height]);
-
-        zoom
-                .x(real_scale)
-                .y(imag_scale)
-                .scale(1)
-                .translate([0,0]);
-
-        jul.x_extent(width).y_extent(height);
-
-        d3.selectAll("canvas")
-                .attr("width", width)
-                .attr("height", height);
-        onzoom();
+    d3.select("#methods").style("display", function() { return method_active ? "block" : "none" });
+    d3.select(this).classed("active", method_active);
+});
+var color_active= false
+d3.select("#zoom-color").on("click", function() {
+    color_active = !color_active;
+    if(color_active) {
+        gear_active=false;
+        d3.select("#tools").style("display","none" );
+        d3.select("#zoom-gear").classed("active", false);
+        method_active=false;
+        d3.select("#methods").style("display","none" );
+        d3.select("#zoom-method").classed("active", false);
     }
+    d3.select("#colors").style("display", function() { return color_active ? "block" : "none" });
+    d3.select(this).classed("active", color_active);
+});
+d3.select("#zoom-reset").on("click", function() {
+    real_scale.domain([-1.7,1.7]);
+    imag_scale.domain([-1,1]);
+    zoom.scale(1)
+        .translate([0,0])
+        .x(real_scale)
+        .y(imag_scale);
+    onzoom();
+});
+
+d3.select(interaction_canvas)
+    .call(zoom);
+
+window.onresize = function() {
+    width = document.body.clientWidth;
+    height = document.body.clientHeight;
+
+    real_scale.range([0, width]);
+    imag_scale.range([0, height]);
+
+    zoom
+        .x(real_scale)
+        .y(imag_scale)
+        .scale(1)
+        .translate([0,0]);
+
+    jul.x_extent(width).y_extent(height);
+
+    d3.selectAll("canvas")
+        .attr("width", width)
+        .attr("height", height);
+    onzoom();
+}
 
 </script>
