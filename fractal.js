@@ -32,12 +32,12 @@ function fractal(x_extent, y_extent) {
       main: _methods.julia,
       others: [_methods.julia3, _methods.dentrite, _methods.siegelDisk, _methods.douadysRabbit, _methods.sanMarco]
     },
-    BarnleysItems:{
+    /*BarnleysItems:{
       name:"Barnleys Tree",
       id:"BarnleysMenu",
       main:_methods.barnleys,
       others: []
-    },
+    },*/
     NewtonItems:{
       name:"Newton",
       id:"NewtonMenu",
