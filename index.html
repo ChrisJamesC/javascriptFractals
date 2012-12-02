@@ -78,7 +78,7 @@ var greenBlack = d3.scale.sqrt()
     .interpolate(d3.interpolateLab);
 
 var deep = d3.scale.linear()
-    .domain(d3.range(0,2000,20))
+    .domain(d3.range(0,jul.__.maxIter,20))
     .range(d3.range(0,100).map(function(i) { return d3.hcl(190+120*i, 40+35*Math.round(Math.cos(i/5)), 18+6*(i%10)).toString(); }))
     .interpolate(d3.interpolateLab);
 

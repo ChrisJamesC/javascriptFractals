@@ -3,14 +3,19 @@ function fractal(x_extent, y_extent) {
 
   var _methods = {
     mandelbrot: {id: "m", name: "Mandelbrot", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag, 2)}},
-    mandelbrot3: {id: "m3", name: "Mandelbrot z^3", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,3)}},
-    mandelbrot4: {id: "m4", name: "Mandelbrot z^4", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,4)}},
-    mandelbrot8: {id: "m8", name: "Mandelbrot z^8", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,8)}},
-    tricorn: {id: "t", name: "Tricorn", iterFunc: tricornIterate},
-    burningShip: {id: "bs", name: "Burning ship", iterFunc: burningShipIterate},
-    julia: {id: "j", name: "Julia", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}},
-    julia3: {id: "j3", name: "Julia z^3", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 3)}},
-    juliaCos: {id: "jcos", name: "Julia cos(z)+c", iterFunc: juliaCosIterate},
+      mandelbrot3: {id: "m3", name: "Mandelbrot z^3", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,3)}},
+      mandelbrot4: {id: "m4", name: "Mandelbrot z^4", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,4)}},
+      mandelbrot8: {id: "m8", name: "Mandelbrot z^8", iterFunc: function(jul, real,imag){return mandelbrotIterate(jul, real, imag,8)}},
+      tricorn: {id: "t", name: "Tricorn", iterFunc: tricornIterate},
+      burningShip: {id: "bs", name: "Burning ship", iterFunc: burningShipIterate},
+    julia: {id: "j", name: "Julia", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}, initParams: function(){__.CR=-0.8; __.CI= .156;}},
+      julia3: {id: "j3", name: "Julia z^3", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 3)}, initParams: function(){__.CR=-0.8; __.CI= .156;}},
+      dentrite: {id: "d", name: "Dentrite", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}, initParams: function(){__.CR=0; __.CI= 1;}},
+      siegelDisk: {id: "sd", name: "Siegel Disk", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}, initParams: function(){__.CR=-0.390541; __.CI= -0.586788;}},
+      douadysRabbit: {id: "dr", name: "Douady's Rabbit", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}, initParams: function(){__.CR=-0.123; __.CI= -0.745;}},
+      sanMarco: {id: "sm", name: "San Marco", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}, initParams: function(){__.CR=-3/4; __.CI= 0;}},
+      juliaCos: {id: "jcos", name: "Julia cos(z)+c", iterFunc: juliaCosIterate},
+    barnleys: {id: "bt", name: "Barnleys Tree", iterFunc: function(jul, real,imag){return barnsleysIterate(jul, real, imag)}, initParams: function(){__.CR=0.6; __.CI= 1.1; __.maxIter=50;}},
     newton:  {id: "n", name: "Newton", iterFunc: null }
   }
 
@@ -25,7 +30,13 @@ function fractal(x_extent, y_extent) {
       name:"Julia",
       id:"JuliaMenu",
       main: _methods.julia,
-      others: [_methods.julia3]
+      others: [_methods.julia3, _methods.dentrite, _methods.siegelDisk, _methods.douadysRabbit, _methods.sanMarco]
+    },
+    BarnleysItems:{
+      name:"Barnleys Tree",
+      id:"BarnleysMenu",
+      main:_methods.barnleys,
+      others: []
     },
     NewtonItems:{
       name:"Newton",
@@ -41,10 +52,10 @@ function fractal(x_extent, y_extent) {
     realMax: 1.7,
     imagMin: -1,
     imagMax: 1,
-    CR: -.8,
-    CI: .156,
     maxIter: 2000,
     minResolution: 40,
+    CR: -.8,
+    CI: .156,
     newtonThresh: 0.000001,
     newtonContrast: 50
   };
@@ -86,6 +97,9 @@ function fractal(x_extent, y_extent) {
     __.realMax = reals[1];
     __.imagMin = imags[0];
     __.imagMax = imags[1];
+    if(method.initParams != null ){
+      method.initParams();
+    }
     jul.resetForRender();
   }
 

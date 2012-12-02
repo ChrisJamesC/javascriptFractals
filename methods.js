@@ -17,6 +17,8 @@ juliaIterate = function(jul, real,imag, power){
   }
   return iterations;
 }
+
+/* Julia Cos/Sin set  TODO:fix method in order to make it work */
 var cosh = function(x){
   return (Math.pow(Math.E, x) + Math.pow(Math.E, -x)) / 2;
 };
@@ -42,7 +44,23 @@ juliaCosIterate = function(jul, real,imag){
   return iterations;
 }
 
-
+/* Barnsleys tree TODO Fix method*/
+barnsleysIterate = function(jul, real,imag){
+  var iterations = 0;
+  var zr = real;
+  var zi = imag;
+  var zr_next, zi_next, z_pow;
+  while (true) {
+    iterations++;
+    if ( iterations > jul.__.maxIter ) return 0;
+    zr_next = jul.__.CR*(zr - zr/Math.abs(zr))- jul.__.CI*zi;
+    zi_next = jul.__.CI*(zr - zr/Math.abs(zr))- jul.__.CR*zi;
+    zr = zr_next;
+    zi = zi_next;
+    if ( zr^2 + zi^2 > 4 ) return iterations;
+  }
+  return iterations;
+}
 
 /* Mandelbrot Set */
 mandelbrotIterate = function(jul, real, imag, power){
