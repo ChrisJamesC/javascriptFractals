@@ -1,4 +1,6 @@
-A [Julia set](http://paulbourke.net/fractals/juliaset/), a Mandelbrot set or a Newton fractal.
+A [Julia set](http://paulbourke.net/fractals/juliaset/), a Mandelbrot set or a Newton fractal. 
+
+This project focuses on Escape-time fractals but don't hesitate to contribute in order to show more types of fractals.
 
 
 Based on [syntagmatic zoomable Julia](http://bl.ocks.org/3736720) and [DougX's Canvas Fractals](http://dougx.net/fractals/fractals.html).
