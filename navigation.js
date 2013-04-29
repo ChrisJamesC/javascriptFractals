@@ -160,12 +160,11 @@ function updateKeys(method) {
 }
 
 jul.color = deep;
-//d3.select("#deep").classed("active");
 updateKeys(jul.__.method);
 updateMethods()
 activate(jul.__.method)
-jul.render();
 jul.go();
+
 
 d3.select(interaction_canvas)
     .call(zoom);

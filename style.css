@@ -11,15 +11,22 @@ body {
 a:hover {
     text-decoration: none;
 }
+a {
+    text-decoration: underline;
+    color: inherit;
+}
 canvas {
     position: absolute;
     cursor: move;
 }
 
+
+
 #zoom {
     position: absolute;
     top: 12px;
     left: 12px;
+    right: 12px;
     font-size: 12px;
     line-height: 24px;
     font-weight: normal;
