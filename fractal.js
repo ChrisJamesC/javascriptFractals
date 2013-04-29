@@ -15,7 +15,7 @@ function fractal(x_extent, y_extent) {
       douadysRabbit: {id: "dr", name: "Douady's Rabbit", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}, initParams: function(){__.CR=-0.123; __.CI= -0.745;}},
       sanMarco: {id: "sm", name: "San Marco", iterFunc: function(jul, real,imag){return juliaIterate(jul, real, imag, 2)}, initParams: function(){__.CR=-3/4; __.CI= 0;}},
       juliaCos: {id: "jcos", name: "Julia cos(z)+c", iterFunc: juliaCosIterate},
-    barnleys: {id: "bt", name: "Barnleys Tree", iterFunc: function(jul, real,imag){return barnsleysIterate(jul, real, imag)}, initParams: function(){__.CR=0.6; __.CI= 1.1; __.maxIter=50;}},
+    //barnleys: {id: "bt", name: "Barnleys Tree", iterFunc: function(jul, real,imag){return barnsleysIterate(jul, real, imag)}, initParams: function(){__.CR=0.6; __.CI= 1.1; __.maxIter=50;}},
     newton:  {id: "n", name: "Newton", iterFunc: null }
   }
 
@@ -70,7 +70,6 @@ function fractal(x_extent, y_extent) {
   jul.__ = __;
   jul._menuItems = _menuItems
   getset(jul, __, events);
-  //getset(jul, _methods, events);
   d3.rebind(jul, events, "on");
 
   var ctx;
@@ -89,8 +88,6 @@ function fractal(x_extent, y_extent) {
   }
 
   jul.changeMethod = function(method, reals, imags) {
-    //if(method == "j" || method =="m" || method =="n") __.method = method;
-    //else __.method = "m";
     __.method = method
     done = true;
     __.realMin = reals[0];
@@ -103,17 +100,15 @@ function fractal(x_extent, y_extent) {
     jul.resetForRender();
   }
 
+  var iterations;
+
   jul.changeColor = function(color){
     jul.color = color;
     jul.resetForRender();
   }
 
   jul.iterate = function(real,imag) {
-      //if(__.method == "j") return  juliaIterate(jul, real, imag)
-      //else return mandelbrotIterate(jul, real,imag, 2)
-    //console.log("call of jul.iterate")
     return __.method.iterFunc(jul, real, imag)
-
   }
 
   jul.render = function() {
@@ -130,7 +125,7 @@ function fractal(x_extent, y_extent) {
     var fast_color = _.memoize(jul.color);
 
     var ll = _x + 6; // how many columns to render at once
-    for ( ; _x < ll; ++_x) {
+    for (_x = 0 ; _x < ll; ++_x) {
       for ( _y = 0; _y < y_extent; ++_y) {
         var fx = _x / x_extent;
         var fy = _y / y_extent;
@@ -143,7 +138,7 @@ function fractal(x_extent, y_extent) {
           ctx.fillStyle = color;
           ctx.fillRect(_x,_y,1,1);
         }else {
-          var iterations = jul.iterate(real,imag);
+          iterations = jul.iterate(real,imag);
           ctx.fillStyle = fast_color(iterations);
           ctx.fillRect(_x,_y,1,1);
         }
@@ -152,6 +147,7 @@ function fractal(x_extent, y_extent) {
 
     if ( _x >= x_extent ) {
       done = true;
+        console.log("done!!!")
       events.done.call(jul);
     }
   }
@@ -172,12 +168,7 @@ function fractal(x_extent, y_extent) {
 
         var real = fx * realSpan + __.realMin;
         var imag = fy * imagSpan + __.imagMin;
-        /*
-        var iterations = jul.iterate(real,imag);
 
-        ctx.fillStyle = fast_color(iterations);
-        ctx.fillRect(_x,_y,resolution,resolution);
-        */
         if(__.method == _methods.newton){
           var color = newtonColor(jul, real,imag);
           ctx.fillStyle = color;

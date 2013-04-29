@@ -15,109 +15,67 @@ canvas {
     position: absolute;
     cursor: move;
 }
-.tools {
+
+#zoom {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-size: 12px;
+    line-height: 24px;
+    font-weight: normal;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+#zoom .container{
+    float:left;
+    width:120px;
+    margin-right: 4px;
+    font-color: white;
+    width:120px;
+}
+
+#zoom .button{
+    border-radius: 4px;
+    background-color: rgba(0,0,0,0.3);
+    font-size: 16px;
+    padding: 2px;
+    cursor: default;
+}
+
+#zoom .container:hover .button{
+    background-color: rgba(0,0,0,0.6);
+}
+
+#zoom .container:hover .tools {
+    display: block;
+}
+
+#zoom .tools {
+    display: none;
+    text-align: left;
     color: #eee;
-    position: fixed;
-    top: 44px;
+    top: 48px;
     left: 12px;
     line-height: 18px;
-    padding: 6px 8px 6px 8px;
+    padding: 6px;
     z-index: 10;
-    background: rgba(0,0,0,0.6);
-    /*height: 40px;*/
+    background-color: rgba(0,0,0,0.6);
     border-radius: 4px;
+    margin-top: 2px;
 }
-.tools:hover {
-    opacity: 1;
-}
-.tools > div {
-    width: 80px;
-    float: left;
-}
-.tools input[type=text] {
+
+#zoom .tools input[type=text] {
     color: #fff;
     font-weight: bold;
-    width: 70px;
-    margin: 0 0 4px 0;
+    width: 108px;
+    /*margin: 0 0 4px 0;  */
     padding: 4px 5px;
     background: rgba(0,0,0,0.1);
     border: none;
 }
 
-.tools:hover input[type=text] {
-    color: #eee;
-}
-#zoom {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    font-size: 24px;
-    line-height: 24px;
-    font-weight: bold;
-    text-align: center;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-#zoom div {
-    float: left;
-    width: 24px;
-    /*background: rgba(0,0,0,0.6);*/
-    border-radius: 4px;
-    margin-right: 4px;
-    padding: 2px;
-    font-size: 16px;
-    color: rgba(255,255,255,0.3);
-    background: rgba(0,0,0,0.2);
-}
-#zoom div:hover {
-    cursor: pointer;
-    /*background: rgba(0,0,0,1);*/
-    color: rgba(255,255,255,1);
-}
-#zoom-reset {
-    font-size: 16px;
-}
-#zoom #zoom-gear {
-    font-size: 16px;
-    color: rgba(255,255,255,0.3);
-    background: rgba(0,0,0,0.2);
-}
-#zoom #zoom-gear:hover {
-    color: rgba(255,255,255,1);
-}
-#zoom #zoom-gear.active {
-    color: inherit;
-    background: rgba(0,0,0,0.6);
-}
 
-#zoom #zoom-method {
-    font-size: 16px;
-    color: rgba(255,255,255,0.3);
-    background: rgba(0,0,0,0.2);
-}
-#zoom #zoom-method:hover {
-    color: rgba(255,255,255,1);
-}
-#zoom #zoom-method.active {
-    color: inherit;
-    background: rgba(0,0,0,0.6);
-}
-#zoom #zoom-color {
-    font-size: 16px;
-    color: rgba(255,255,255,0.3);
-    background: rgba(0,0,0,0.2);
-}
-#zoom #zoom-color:hover {
-    color: rgba(255,255,255,1);
-}
-#zoom #zoom-color.active {
-    color: inherit;
-    background: rgba(0,0,0,0.6);
-}
 .choice {
     cursor: pointer;
 }
